@@ -1,0 +1,44 @@
+buildscript {
+	repositories {
+		mavenLocal()
+		mavenCentral()
+		google()
+		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		jcenter()
+	}
+	dependencies {
+		classpath "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+	}
+}
+
+allprojects {
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+}
+
+configure(subprojects) {
+	apply plugin: 'java-library'
+	sourceCompatibility = 1.8
+	compileJava {
+		options.incremental = true
+	}
+}
+
+subprojects {
+	version = '0.0.1'
+	ext.appName = 'NotEnoughProduction'
+	repositories {
+		mavenLocal()
+		mavenCentral()
+		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		maven { url 'https://jitpack.io' }
+		jcenter()
+	}
+}
+
+// Clearing Eclipse project data in root folder:
+tasks.eclipse.doLast {
+	delete '.project'
+	delete '.classpath'
+	delete '.settings/'
+}

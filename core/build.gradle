@@ -1,0 +1,15 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-core'
+
+dependencies {
+	api "com.badlogicgames.gdx:gdx:$gdxVersion"
+	api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+	api "com.kotcrab.vis:vis-ui:$visUiVersion"
+	
+	api "javax.json:javax.json-api:1.1"
+	api "org.glassfish:javax.json:1.1"
+	
+	api "com.google.code.gson:gson:2.7"
+	
+	api "com.github.axet:wget:1.4.9"
+}

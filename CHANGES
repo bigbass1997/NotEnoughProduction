@@ -1,0 +1,11 @@
+[0.0.1]
+- Initial commit of progress to github
+- Progress includes:
+	- Loading recipe JSON files and processing them into IRecipe classes
+	- Downloading recipe data from a remote host if not already found in cache
+	- Able to display particular recipes as Nodes
+	- Nodes are able to be overclocked (only applies if node contains a GregtechRecipe)
+	- Overclocked nodes have a label that displays the overclock information
+	- The inputs and outputs of a node can be hovered over with the mouse, displaying a transparent highlight
+		- Code is ready for additonal functionality (clicking on the particular inputs/outputs)
+	- Nodes are compatible with non-Gregtech recipes as well; only applicable data will be displayed on the node
