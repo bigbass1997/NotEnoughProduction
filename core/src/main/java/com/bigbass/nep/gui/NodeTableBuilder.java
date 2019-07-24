@@ -1,14 +1,21 @@
 package com.bigbass.nep.gui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 import com.bigbass.nep.gui.Node.Tier;
-import com.bigbass.nep.gui.listeners.ContainerHoverListener;
+import com.bigbass.nep.gui.listeners.HoverListener;
 import com.bigbass.nep.recipes.Fluid;
 import com.bigbass.nep.recipes.GregtechRecipe;
 import com.bigbass.nep.recipes.IElement;
@@ -16,6 +23,13 @@ import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.skins.SkinManager;
 
 public class NodeTableBuilder {
+	
+	/**
+	 * Texture for the node's movement image.
+	 * 
+	 * Not the best way to store the asset in code, but good enough for now.
+	 */
+	private static TextureRegion MOVE_TEXTURE;
 	
 	private static final String FONTPATH = "fonts/droid-sans-mono.ttf";
 
@@ -29,19 +43,42 @@ public class NodeTableBuilder {
 	private NodeTableBuilder(){}
 	
 	public static void build(Node node, Table root){
-		IRecipe rec = node.getRecipe(); // can be null
+		if(MOVE_TEXTURE == null){
+			MOVE_TEXTURE = new TextureRegion(new Texture(Gdx.files.internal("textures/moveNode.png")));
+		}
 		
 		root.reset();
 		//root.debug();
 		
 		root.setWidth(240);
 		
+		// for organization and maintainability, each type of row is in its own private function
+		nodeMenuRow(root, node);
 		extraDataRow(root, node);
 		titleRow(root, node);
 		outputHeaderRow(root, node);
 		outputRows(root, node);
 		inputHeaderRow(root, node);
 		inputRows(root, node);
+	}
+	
+	private static void nodeMenuRow(Table root, Node node){
+		root.row();
+		final Skin rootSkin = root.getSkin();
+		Table nested = new Table(rootSkin);
+		
+		ContainerLabel spacer = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
+		spacer.setBackgroundColor(Color.CLEAR);
+		spacer.minWidth(root.getWidth() - 20);
+		
+		MoveNodeImage moveNode = new MoveNodeImage(MOVE_TEXTURE, SkinManager.getSkin(FONTPATH, 10), root);
+		moveNode.setScaling(Scaling.fill);
+		
+		
+		nested.add(spacer);
+		nested.add(moveNode).width(MOVE_TEXTURE.getRegionWidth()).height(MOVE_TEXTURE.getRegionHeight());
+		
+		root.add(nested);
 	}
 	
 	private static void extraDataRow(Table root, Node node){
@@ -259,16 +296,57 @@ public class NodeTableBuilder {
 		}
 	}
 	
+	/**
+	 * Function is called in Main.dispose()
+	 */
+	public static void dispose(){
+		MOVE_TEXTURE.getTexture().dispose();
+	}
+	
+	public static class MoveNodeImage extends Image {
+		
+		private HoverListener hoverListener;
+		private DragListener dragListener;
+		private Drawable hover;
+		
+		public MoveNodeImage(TextureRegion tex, Skin skin, Table root){
+			super(tex);
+			
+			hover = skin.newDrawable("whiteBackground", 1, 1, 1, 0.5f);
+			hoverListener = new HoverListener();
+			this.addListener(hoverListener);
+			
+			dragListener = new DragListener(){
+				
+				@Override
+				public void drag(InputEvent event, float x, float y, int pointer){
+					root.moveBy(this.getDragX() - (tex.getRegionWidth() * 0.5f), this.getDragY() - (tex.getRegionHeight() * 0.5f));
+				}
+				
+			};
+			dragListener.setTapSquareSize(1);
+			this.addListener(dragListener);
+		}
+
+		@Override
+		public void draw(Batch batch, float parentAlpha){
+			super.draw(batch, parentAlpha);
+			if(hoverListener.isOver()){
+				hover.draw(batch, getX(), getY(), getWidth(), getHeight());
+			}
+		}
+	}
+	
 	public static class HoverableTable extends Table {
 		
-		private ContainerHoverListener hoverListener;
+		private HoverListener hoverListener;
 		private Drawable hover;
 		
 		public HoverableTable(Skin skin){
 			super(skin);
 			
 			hover = skin.newDrawable("whiteBackground", 1, 1, 1, 0.5f);
-			hoverListener = new ContainerHoverListener();
+			hoverListener = new HoverListener();
 			this.addListener(hoverListener);
 		}
 

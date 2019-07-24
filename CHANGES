@@ -9,3 +9,4 @@
 	- The inputs and outputs of a node can be hovered over with the mouse, displaying a transparent highlight
 		- Code is ready for additonal functionality (clicking on the particular inputs/outputs)
 	- Nodes are compatible with non-Gregtech recipes as well; only applicable data will be displayed on the node
+	- Nodes are able to be dragged, in order to change their position on the screen

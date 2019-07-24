@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.bigbass.nep.Main;
 import com.bigbass.nep.gui.Node;
 import com.bigbass.nep.gui.Node.Tier;
+import com.bigbass.nep.recipes.GregtechRecipe;
 import com.bigbass.nep.recipes.RecipeManager;
 import com.bigbass.nep.recipes.RecipeManager.RecipeError;
 import com.bigbass.nep.skins.SkinManager;
@@ -97,6 +98,17 @@ public class PrimaryPanel extends Panel {
 		node.setOverride(Tier.MV);
 		node.refresh(RecipeManager.getInst().tmpRecipes.get(10215));
 		worldStage.addActor(node.getActor());
+		
+		float x = 0;
+		for(GregtechRecipe rec : RecipeManager.getInst().tmpRecipes){
+			if(rec.machineName.equalsIgnoreCase("Electric Blast Furnace") && rec.eut == 2048){
+				node = new Node(x, 0);
+				node.refresh(rec);
+				worldStage.addActor(node.getActor());
+				
+				x += 250;
+			}
+		}
 	}
 	
 	public void render() {

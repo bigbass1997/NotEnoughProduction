@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL20;
+import com.bigbass.nep.gui.NodeTableBuilder;
 import com.bigbass.nep.panel.PanelGroup;
 import com.bigbass.nep.panel.PrimaryPanel;
 import com.kotcrab.vis.ui.VisUI;
@@ -73,5 +74,7 @@ public class Main extends ApplicationAdapter {
 		panels.dispose();
 		
 		VisUI.dispose();
+		
+		NodeTableBuilder.dispose();
 	}
 }
