@@ -6,15 +6,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.bigbass.nep.gui.Node.Tier;
+import com.bigbass.nep.gui.actors.ContainerLabel;
 import com.bigbass.nep.gui.listeners.HoverListener;
 import com.bigbass.nep.recipes.Fluid;
 import com.bigbass.nep.recipes.GregtechRecipe;
@@ -24,12 +25,12 @@ import com.bigbass.nep.skins.SkinManager;
 
 public class NodeTableBuilder {
 	
-	/**
-	 * Texture for the node's movement image.
-	 * 
-	 * Not the best way to store the asset in code, but good enough for now.
-	 */
+	// The following textures are not the best way to store assets in code, but good enough for now.
+	
+	/** Texture for the node's movement image. */
 	private static TextureRegion MOVE_TEXTURE;
+	/** Texture for the node's removal image. */
+	private static TextureRegion REMOVE_TEXTURE;
 	
 	private static final String FONTPATH = "fonts/droid-sans-mono.ttf";
 
@@ -45,6 +46,10 @@ public class NodeTableBuilder {
 	public static void build(Node node, Table root){
 		if(MOVE_TEXTURE == null){
 			MOVE_TEXTURE = new TextureRegion(new Texture(Gdx.files.internal("textures/moveNode.png")));
+		}
+		
+		if(REMOVE_TEXTURE == null){
+			REMOVE_TEXTURE = new TextureRegion(new Texture(Gdx.files.internal("textures/removeNode.png")));
 		}
 		
 		root.reset();
@@ -69,14 +74,20 @@ public class NodeTableBuilder {
 		
 		ContainerLabel spacer = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
 		spacer.setBackgroundColor(Color.CLEAR);
-		spacer.minWidth(root.getWidth() - 20);
 		
 		MoveNodeImage moveNode = new MoveNodeImage(MOVE_TEXTURE, SkinManager.getSkin(FONTPATH, 10), root);
 		moveNode.setScaling(Scaling.fill);
 		
+		RemoveNodeImage removeNode = new RemoveNodeImage(REMOVE_TEXTURE, SkinManager.getSkin(FONTPATH, 10), node);
+		removeNode.setScaling(Scaling.fill);
+		
+		
+		spacer.minWidth( root.getWidth() - (MOVE_TEXTURE.getRegionWidth() + REMOVE_TEXTURE.getRegionWidth()) );
+		
 		
 		nested.add(spacer);
 		nested.add(moveNode).width(MOVE_TEXTURE.getRegionWidth()).height(MOVE_TEXTURE.getRegionHeight());
+		nested.add(removeNode).width(REMOVE_TEXTURE.getRegionWidth()).height(REMOVE_TEXTURE.getRegionHeight());
 		
 		root.add(nested);
 	}
@@ -301,6 +312,41 @@ public class NodeTableBuilder {
 	 */
 	public static void dispose(){
 		MOVE_TEXTURE.getTexture().dispose();
+		REMOVE_TEXTURE.getTexture().dispose();
+	}
+	
+	public static class RemoveNodeImage extends Image {
+
+		private HoverListener hoverListener;
+		private ClickListener clickListener;
+		private Drawable hover;
+		
+		public RemoveNodeImage(TextureRegion tex, Skin skin, Node node){
+			super(tex);
+			
+			hover = skin.newDrawable("whiteBackground", 1, 0.2f, 0.2f, 0.65f);
+			hoverListener = new HoverListener();
+			this.addListener(hoverListener);
+			
+			clickListener = new ClickListener(){
+				
+				@Override
+				public void clicked(InputEvent event, float x, float y){
+					node.setForRemoval();
+				}
+				
+			};
+			clickListener.setTapSquareSize(1);
+			this.addListener(clickListener);
+		}
+
+		@Override
+		public void draw(Batch batch, float parentAlpha){
+			super.draw(batch, parentAlpha);
+			if(hoverListener.isOver()){
+				hover.draw(batch, getX(), getY(), getWidth(), getHeight());
+			}
+		}
 	}
 	
 	public static class MoveNodeImage extends Image {
@@ -356,35 +402,6 @@ public class NodeTableBuilder {
 			if(hoverListener.isOver()){
 				hover.draw(batch, getX(), getY(), getWidth(), getHeight());
 			}
-		}
-	}
-	
-	public static class ContainerLabel extends CustomContainer<CustomLabel> {
-		
-		public CustomLabel label;
-		
-		public ContainerLabel(Skin skin){
-			this(skin, false);
-		}
-		
-		public ContainerLabel(Skin skin, boolean isHoverable){
-			super(skin);
-			
-			label = new CustomLabel(skin);
-			setActor(label);
-			
-			pad(1, 3, 1, 3);
-			
-			label.setWrap(true);
-		}
-		
-		@Override
-		public Container<CustomLabel> minWidth(float minWidth){
-			return super.minWidth(minWidth - (this.getPadLeft() + this.getPadRight()));
-		}
-		
-		public void setForegroundColor(Color color){
-			this.label.setForegroundColor(ColorCache.getForegroundColor(color));
 		}
 	}
 }

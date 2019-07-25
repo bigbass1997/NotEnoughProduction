@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 import javax.json.Json;
@@ -22,12 +23,11 @@ public class RecipeManager {
 	
 	private static RecipeManager instance;
 	
-	public List<GregtechRecipe> tmpRecipes;
-	
-	
+	/** Table of sources, where the source is the key, and each key has a list of recipes. */
+	public Hashtable<String, List<IRecipe>> recipes;
 	
 	private RecipeManager(){
-		tmpRecipes = new ArrayList<GregtechRecipe>();
+		recipes = new Hashtable<String, List<IRecipe>>();
 	}
 	
 	public static RecipeManager getInst(){
@@ -96,9 +96,10 @@ public class RecipeManager {
 		}
 		
 		for(JsonObject source : root.getJsonArray("sources").getValuesAs(JsonObject.class)){
-			final String type = source.getString("type", "unknown");
+			final String sourceType = source.getString("type", "unknown");
+			final List<IRecipe> sourceRecipes = new ArrayList<IRecipe>();
 			
-			if(type.equalsIgnoreCase("gregtech")){ //*************** GREGTECH ***************\\
+			if(sourceType.equalsIgnoreCase("gregtech")){ //*************** GREGTECH ***************\\
 				JsonArray machines = source.getJsonArray("machines");
 				
 				for(JsonObject machine : machines.getValuesAs(JsonObject.class)){
@@ -141,15 +142,17 @@ public class RecipeManager {
 								}
 							}
 							
-							tmpRecipes.add(recipe);
+							sourceRecipes.add(recipe);
 						}
 					}
 				}
-			} else if(type.equalsIgnoreCase("shapeless")){ //*************** SHAPELESS ***************\\
+			} else if(sourceType.equalsIgnoreCase("shapeless")){ //*************** SHAPELESS ***************\\
 				//TODO shapeless recipes
-			} else if(type.equalsIgnoreCase("shaped")){ //*************** SHAPED ***************\\
+			} else if(sourceType.equalsIgnoreCase("shaped")){ //*************** SHAPED ***************\\
 				//TODO shaped recipes
 			} //TODO oredicted recipes
+			
+			recipes.put(sourceType, sourceRecipes);
 		}
 		
 		return null; // intended; returning null means no errors occured

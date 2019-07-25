@@ -1,10 +1,13 @@
 package com.bigbass.nep.panel;
 
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -15,7 +18,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.bigbass.nep.Main;
 import com.bigbass.nep.gui.Node;
 import com.bigbass.nep.gui.Node.Tier;
-import com.bigbass.nep.recipes.GregtechRecipe;
+import com.bigbass.nep.gui.NodeManager;
+import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.recipes.RecipeManager;
 import com.bigbass.nep.recipes.RecipeManager.RecipeError;
 import com.bigbass.nep.skins.SkinManager;
@@ -31,9 +35,13 @@ public class PrimaryPanel extends Panel {
 	private Stage hudStage;
 	private ShapeRenderer sr;
 	
+	private SearchPanel searchPanel;
+	
 	private Label infoLabel;
 	
 	private float scalar = 1f;
+	
+	private final NodeManager nodeManager;
 	
 	public PrimaryPanel() {
 		super();
@@ -71,56 +79,38 @@ public class PrimaryPanel extends Panel {
 		});
 		changeCameraViewport(0);
 		
+		searchPanel = new SearchPanel(200, 200, hudStage, sr);
+		searchPanel.dim.set(500, 500);
+		this.panelGroup.panels.add(searchPanel);
+		
 		
 		System.out.println("Loading recipes...");
 		RecipeError err = RecipeManager.getInst().loadRecipes("v2.0.7.5-gt-shaped-shapeless");
 		System.out.println("Done " + err);
 		
-		Node node = new Node(100, 300);
-		node.refresh(RecipeManager.getInst().tmpRecipes.get(5));
-		worldStage.addActor(node.getActor());
+		nodeManager = new NodeManager(worldStage);
 		
-		node = new Node(400, 300);
-		node.setOverride(Tier.MV);
-		node.refresh(RecipeManager.getInst().tmpRecipes.get(5));
-		worldStage.addActor(node.getActor());
-
-		node = new Node(700, 300);
-		node.setOverride(Tier.EV);
-		node.refresh(RecipeManager.getInst().tmpRecipes.get(5));
-		worldStage.addActor(node.getActor());
-
-		node = new Node(100, 500);
-		node.refresh(RecipeManager.getInst().tmpRecipes.get(10215));
-		worldStage.addActor(node.getActor());
-
-		node = new Node(400, 500);
-		node.setOverride(Tier.MV);
-		node.refresh(RecipeManager.getInst().tmpRecipes.get(10215));
-		worldStage.addActor(node.getActor());
-		
-		float x = 0;
-		for(GregtechRecipe rec : RecipeManager.getInst().tmpRecipes){
-			if(rec.machineName.equalsIgnoreCase("Electric Blast Furnace") && rec.eut == 2048){
-				node = new Node(x, 0);
-				node.refresh(rec);
-				worldStage.addActor(node.getActor());
-				
-				x += 250;
-			}
-		}
+		final List<IRecipe> gtrecs = RecipeManager.getInst().recipes.get("gregtech");
+		nodeManager.addNode(new Node(100, 300, gtrecs.get(5)));
+		nodeManager.addNode(new Node(400, 300, gtrecs.get(5), Tier.MV));
+		nodeManager.addNode(new Node(700, 300, gtrecs.get(5), Tier.EV));
+		nodeManager.addNode(new Node(100, 500, gtrecs.get(10215)));
+		nodeManager.addNode(new Node(400, 500, gtrecs.get(10215), Tier.MV));
 	}
 	
 	public void render() {
-		panelGroup.render();
-
 		/*sr.begin(ShapeType.Filled);
-		sr.setColor(1, 1, 1, 1);
+		sr.setColor(1, 1, 1, 0.1f);
 		sr.rect(Gdx.input.getX(), -Gdx.input.getY() + Gdx.graphics.getHeight(), 250, 10);
 		sr.end();*/
 		
 		//worldStage.getViewport().apply();
 		worldStage.draw();
+
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		panelGroup.render();
+		
 		//hudStage.getViewport().apply();
 		hudStage.draw();
 		
@@ -128,12 +118,21 @@ public class PrimaryPanel extends Panel {
 		sr.setColor(Color.FIREBRICK);
 		renderDebug(sr);
 		sr.end();*/
+		
 	}
 	
 	public void update(float delta) {
-		panelGroup.update(delta);
+		if(Gdx.input.isKeyJustPressed(Keys.SPACE)){
+			searchPanel.isActive(!searchPanel.isActive());
+			searchPanel.isVisible(!searchPanel.isVisible());
+		}
+		
+		nodeManager.update();
 		
 		worldStage.act(delta);
+		
+		panelGroup.update(delta);
+		
 		hudStage.act(delta);
 		
 		Input input = Gdx.input;

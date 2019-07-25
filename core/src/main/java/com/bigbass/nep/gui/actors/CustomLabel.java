@@ -1,4 +1,4 @@
-package com.bigbass.nep.gui;
+package com.bigbass.nep.gui.actors;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;

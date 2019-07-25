@@ -57,14 +57,30 @@ public class Node {
 	
 	private Vector2 pos;
 	
+	private boolean shouldRemove;
+	
 	public Node(float x, float y){
+		this(x, y, null);
+	}
+	
+	public Node(float x, float y, IRecipe recipe){
+		this(x, y, recipe, null);
+	}
+	
+	public Node(float x, float y, IRecipe recipe, Tier override){
 		pos = new Vector2(x, y);
 		
 		table = new Table(SkinManager.getSkin("fonts/droid-sans-mono.ttf", 10)); // font doesn't really matter here, but skin necessary for other stuff
-		recipe = null;
-		override = null;
 		
-		refresh();
+		this.override = override;
+		
+		shouldRemove = false;
+		
+		if(recipe != null){
+			refresh(recipe);
+		} else {
+			refresh();
+		}
 	}
 	
 	public void refresh(){
@@ -91,5 +107,12 @@ public class Node {
 	}
 	public Tier getOverride(){
 		return override;
+	}
+	
+	public void setForRemoval(){
+		shouldRemove = true;
+	}
+	public boolean shouldRemove(){
+		return shouldRemove;
 	}
 }
