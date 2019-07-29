@@ -245,7 +245,6 @@ public class SearchTableBuilder {
 			
 			@Override
 			public boolean scrolled(InputEvent event, float x, float y, int amount){
-				System.out.println("fired! " + amount);
 				if(categories.getItems() != null && categories.getItems().size > 0){
 					categories.setSelectedIndex(MathUtils.clamp(categories.getSelectedIndex() + amount, 0, categories.getItems().size - 1));
 					

@@ -51,12 +51,6 @@ public class PrimaryPanel extends Panel {
 		RecipeError err = RecipeManager.getInst().loadRecipes("v2.0.7.5-gt-shaped-shapeless");
 		System.out.println("Done " + err);
 		
-		int total = 0;
-		for(String key : RecipeManager.getInst().recipes.keySet()){
-			total += RecipeManager.getInst().recipes.get(key).size();
-		}
-		System.out.println(total);
-		
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam.position.set(0, 0, 0);
 		cam.update();
