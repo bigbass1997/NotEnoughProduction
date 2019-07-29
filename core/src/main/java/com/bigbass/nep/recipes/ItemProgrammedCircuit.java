@@ -18,4 +18,12 @@ public class ItemProgrammedCircuit extends Item {
 	public String getLocalizedName() {
 		return localizedName + " #" + configNum;
 	}
+	
+	/**
+	 * Be cautious when changing this function! Save files depend on this for reverse recipe lookup.
+	 */
+	@Override
+	public int hashCode(){
+		return super.hashCode() * configNum;
+	}
 }

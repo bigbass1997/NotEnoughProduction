@@ -65,7 +65,7 @@ public class PrimaryPanel extends Panel {
 		infoLabel.setColor(Color.MAGENTA);
 		hudStage.addActor(infoLabel);
 		
-		helpLabel = new Label("Press the F1 key to open the Recipe Search GUI\nUse the WASD keys to move around the screen", SkinManager.getSkin("fonts/droid-sans-mono.ttf", 12));
+		helpLabel = new Label("Press the F1 key to open the Recipe Search GUI\nUse the WASD keys to move around the screen\nCTRL+S or closing the program, will save current nodes", SkinManager.getSkin("fonts/droid-sans-mono.ttf", 12));
 		helpLabel.setAlignment(Align.center);
 		helpLabel.setColor(Color.CYAN);
 		hudStage.addActor(helpLabel);
@@ -90,6 +90,7 @@ public class PrimaryPanel extends Panel {
 		changeCameraViewport(0);
 		
 		nodeManager = new NodeManager(worldStage);
+		nodeManager.loadNodes("default");
 		
 		/*final List<IRecipe> gtrecs = RecipeManager.getInst().recipes.get("Compressor");
 		nodeManager.addNode(new Node(100, 300, gtrecs.get(5)));
@@ -151,6 +152,10 @@ public class PrimaryPanel extends Panel {
 	public void update(float delta) {
 		Input input = Gdx.input;
 		
+		if(input.isKeyPressed(Keys.CONTROL_LEFT) && input.isKeyJustPressed(Keys.S)){
+			nodeManager.saveNodes("default");
+		}
+		
 		if(input.isKeyJustPressed(Keys.F1)){
 			searchPane.setVisible(!searchPane.isVisible());
 			
@@ -175,7 +180,7 @@ public class PrimaryPanel extends Panel {
 		
 		hudStage.act(delta);
 		
-		if(!searchPane.isVisible()){
+		if(!searchPane.isVisible() && !input.isKeyPressed(Keys.CONTROL_LEFT)){
 			boolean dirty = false;
 			if(input.isKeyPressed(Keys.W)){
 				cam.translate(0, CAM_SPEED * delta, 0);
@@ -207,7 +212,7 @@ public class PrimaryPanel extends Panel {
 		infoLabel.setText(info);
 		infoLabel.setPosition(10, Gdx.graphics.getHeight() - (infoLabel.getPrefHeight() / 2) - 5);
 
-		helpLabel.setPosition(Gdx.graphics.getWidth() * 0.5f, Gdx.graphics.getHeight() - 15, Align.center);
+		helpLabel.setPosition(Gdx.graphics.getWidth() * 0.5f, Gdx.graphics.getHeight() - 24, Align.center);
 	}
 
 	public void resize(int width, int height){
@@ -223,6 +228,8 @@ public class PrimaryPanel extends Panel {
 	}
 	
 	public void dispose(){
+		nodeManager.saveNodes("default");
+		
 		worldStage.dispose();
 		sr.dispose();
 		panelGroup.dispose();

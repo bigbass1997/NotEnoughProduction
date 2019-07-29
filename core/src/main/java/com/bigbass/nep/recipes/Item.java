@@ -28,4 +28,16 @@ public class Item implements IElement {
 	public String getLocalizedName() {
 		return localizedName;
 	}
+
+	/**
+	 * Be cautious when changing this function! Save files depend on this for reverse recipe lookup.
+	 */
+	@Override
+	public int hashCode(){
+		int hash = 31 * amount;
+		hash += (unlocalizedName == null ? 0 : unlocalizedName.hashCode());
+		hash += (localizedName == null ? 0 : localizedName.hashCode());
+		
+		return 7 * hash;
+	}
 }

@@ -274,7 +274,31 @@ public class RecipeManager {
 		return fluid;
 	}
 	
-	
+	/**
+	 * Attempts to locate a particular recipe by comparing the provided hashCode with the hashCode of every loaded recipe.
+	 * 
+	 * This function may cause some lag depending on how fast it finds the recipe.
+	 * 
+	 * @param hashCode of the recipe
+	 * @return the found recipe, or null
+	 */
+	public IRecipe findRecipe(int hashCode){
+		if(hashCode == -1){
+			return null;
+		}
+		
+		if(recipes != null){
+			for(String key : recipes.keySet()){
+				for(IRecipe rec : recipes.get(key)){
+					if(rec.hashCode() == hashCode){
+						return rec;
+					}
+				}
+			}
+		}
+		
+		return null;
+	}
 	
 	
 	public class RecipeError {

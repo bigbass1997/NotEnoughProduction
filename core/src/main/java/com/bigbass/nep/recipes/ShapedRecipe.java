@@ -37,4 +37,12 @@ public class ShapedRecipe implements IRecipe {
 		
 		return false;
 	}
+	
+	/**
+	 * Be cautious when changing this function! Save files depend on this for reverse recipe lookup.
+	 */
+	@Override
+	public int hashCode(){
+		return (31 * itemInputs.hashCode()) + (31 * itemOutput.hashCode()) * 3;
+	}
 }

@@ -91,7 +91,7 @@ public class GregtechRecipe implements IRecipe {
 	}
 	
 	public int getTotalEU(Tier overclock){
-		Tier thisTier = Tier.getTier(eut);
+		Tier thisTier = Tier.getTierFromEUt(eut);
 		int dif = overclock.getTierNum() - thisTier.getTierNum();
 		
 		int totalEU = (int) (getTotalEU() * Math.pow(2, dif));
@@ -100,20 +100,33 @@ public class GregtechRecipe implements IRecipe {
 	}
 	
 	public int getOverclockedEUt(Tier overclock){
-		Tier thisTier = Tier.getTier(eut);
+		Tier thisTier = Tier.getTierFromEUt(eut);
 		int dif = overclock.getTierNum() - thisTier.getTierNum();
 		
 		return (int) (eut * Math.pow(4, dif));
 	}
 	
 	public int getOverclockedDuration(Tier overclock){
-		Tier thisTier = Tier.getTier(eut);
+		Tier thisTier = Tier.getTierFromEUt(eut);
 		int dif = overclock.getTierNum() - thisTier.getTierNum();
 		
 		return (int) Math.max(duration / Math.pow(2, dif), 1);
 	}
 	
 	public Tier getTier(){
-		return Tier.getTier(eut);
+		return Tier.getTierFromEUt(eut);
+	}
+
+	/**
+	 * Be cautious when changing this function! Save files depend on this for reverse recipe lookup.
+	 */
+	@Override
+	public int hashCode(){
+		int hash = 31 * eut;
+		hash += 31 * duration;
+		hash += (machineName == null ? 0 : machineName.hashCode());
+		hash += itemInputs.hashCode() + itemOutputs.hashCode() + fluidInputs.hashCode() + fluidOutputs.hashCode();
+		
+		return 7 * hash;
 	}
 }

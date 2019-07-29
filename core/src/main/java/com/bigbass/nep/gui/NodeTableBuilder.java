@@ -85,7 +85,7 @@ public class NodeTableBuilder {
 		ContainerLabel spacer = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
 		spacer.setBackgroundColor(Color.CLEAR);
 		
-		MoveNodeImage moveNode = new MoveNodeImage(MOVE_TEXTURE, SkinManager.getSkin(FONTPATH, 10), root);
+		MoveNodeImage moveNode = new MoveNodeImage(MOVE_TEXTURE, SkinManager.getSkin(FONTPATH, 10), root, node);
 		moveNode.setScaling(Scaling.fill);
 		
 		RemoveNodeImage removeNode = new RemoveNodeImage(REMOVE_TEXTURE, SkinManager.getSkin(FONTPATH, 10), node);
@@ -148,7 +148,7 @@ public class NodeTableBuilder {
 		ContainerLabel rate = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
 		if(rec instanceof GregtechRecipe){
 			GregtechRecipe gtrec = (GregtechRecipe) rec;
-			final Tier recTier = Tier.getTier(gtrec.eut);
+			final Tier recTier = Tier.getTierFromEUt(gtrec.eut);
 			
 			if(node.override != null && recTier.compare(node.override) == -1){
 				rate.label.setText(gtrec.getOverclockedEUt(node.override) + " EU/t");
@@ -365,7 +365,7 @@ public class NodeTableBuilder {
 		private DragListener dragListener;
 		private Drawable hover;
 		
-		public MoveNodeImage(TextureRegion tex, Skin skin, Table root){
+		public MoveNodeImage(TextureRegion tex, Skin skin, Table root, Node node){
 			super(tex);
 			
 			hover = skin.newDrawable("whiteBackground", 1, 1, 1, 0.5f);
@@ -376,7 +376,11 @@ public class NodeTableBuilder {
 				
 				@Override
 				public void drag(InputEvent event, float x, float y, int pointer){
-					root.moveBy(this.getDragX() - (tex.getRegionWidth() * 0.5f), this.getDragY() - (tex.getRegionHeight() * 0.5f));
+					final float deltaX = this.getDragX() - (tex.getRegionWidth() * 0.5f);
+					final float deltaY = this.getDragY() - (tex.getRegionHeight() * 0.5f);
+					
+					root.moveBy(deltaX, deltaY);
+					node.pos.add(deltaX, deltaY);
 				}
 				
 			};

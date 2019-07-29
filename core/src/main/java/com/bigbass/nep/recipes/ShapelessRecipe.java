@@ -22,7 +22,7 @@ public class ShapelessRecipe implements IRecipe {
 	public IElement[] getOutput() {
 		return new Item[]{itemOutput};
 	}
-
+	
 	@Override
 	public boolean containsElement(String search) {
 		if(itemOutput.localizedName.contains(search) || itemOutput.unlocalizedName.contains(search)){
@@ -36,5 +36,13 @@ public class ShapelessRecipe implements IRecipe {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Be cautious when changing this function! Save files depend on this for reverse recipe lookup.
+	 */
+	@Override
+	public int hashCode(){
+		return (31 * itemInputs.hashCode()) + (31 * itemOutput.hashCode()) * 7;
 	}
 }

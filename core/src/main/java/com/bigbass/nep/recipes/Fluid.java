@@ -28,4 +28,16 @@ public class Fluid implements IElement {
 	public String getLocalizedName() {
 		return localizedName;
 	}
+
+	/**
+	 * Be cautious when changing this function! Save files depend on this for reverse recipe lookup.
+	 */
+	@Override
+	public int hashCode(){
+		int hash = 31 * amount;
+		hash += unlocalizedName.hashCode();
+		hash += localizedName.hashCode();
+		
+		return 7 * hash;
+	}
 }

@@ -1,5 +1,9 @@
 package com.bigbass.nep.gui;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -39,10 +43,21 @@ public class Node {
 			return tierNum;
 		}
 		
-		public static Tier getTier(int eut){
+		public static Tier getTierFromEUt(int eut){
 			for(int i = 0; i < values().length; i++){
 				Tier t = values()[i];
 				if(eut < t.getEUt()){
+					return t;
+				}
+			}
+			
+			return null;
+		}
+		
+		public static Tier getTierFromNum(int num){
+			for(int i = 0; i < values().length; i++){
+				Tier t = values()[i];
+				if(num == t.tierNum){
 					return t;
 				}
 			}
@@ -55,7 +70,7 @@ public class Node {
 	private IRecipe recipe;
 	protected Tier override;
 	
-	private Vector2 pos;
+	public Vector2 pos;
 	
 	private boolean shouldRemove;
 	
@@ -114,5 +129,19 @@ public class Node {
 	}
 	public boolean shouldRemove(){
 		return shouldRemove;
+	}
+	
+	public JsonObject toJson(){
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		builder.add("x", pos.x);
+		builder.add("y", pos.y);
+		
+		if(override != null){
+			builder.add("override", override.tierNum);
+		}
+		
+		builder.add("recipeHash", (recipe == null ? -1 : recipe.hashCode()));
+		
+		return builder.build();
 	}
 }
