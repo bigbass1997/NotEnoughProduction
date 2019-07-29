@@ -16,19 +16,27 @@ import com.bigbass.nep.recipes.RecipeManager;
 public class SearchPane {
 	
 	private Stage stage;
+	private NodeManager nodeManager;
 	
 	private SearchTableBuilder builder;
 	
 	private Table table;
 	private float tableWidth;
 	
-	public SearchPane(Stage stage){
+	private Hashtable<String, List<IRecipe>> filteredRecipes;
+	private int currentNodeIndex;
+	
+	public SearchPane(Stage stage, NodeManager nodeManager){
 		this.stage = stage;
+		this.nodeManager = nodeManager;
 		
 		table = new Table();
 		table.setVisible(false);
 		
 		tableWidth = 600;
+		
+		filteredRecipes = new Hashtable<String, List<IRecipe>>();
+		
 		
 		builder = new SearchTableBuilder(this.stage, table, tableWidth);
 		builder.build();
@@ -43,7 +51,7 @@ public class SearchPane {
 			final RecipeManager rm = RecipeManager.getInst();
 			
 			final Hashtable<String, List<IRecipe>> allRecipes = rm.recipes;
-			Hashtable<String, List<IRecipe>> filteredRecipes = new Hashtable<String, List<IRecipe>>();
+			filteredRecipes.clear();
 			
 			for(Actor boxContainer : builder.checkboxes.getChildren().items){
 				if(boxContainer instanceof ContainerCheckBox){
@@ -52,7 +60,7 @@ public class SearchPane {
 					
 					if(box.isChecked()){
 						for(String craftingType : RecipeManager.getInst().recipeSources.get(boxText)){
-							filteredRecipes.put(craftingType, allRecipes.get(craftingType)); // Unknown performance cost
+							filteredRecipes.put(craftingType, allRecipes.get(craftingType));
 						}
 					}
 				}
@@ -80,9 +88,8 @@ public class SearchPane {
 						if(recipe.containsElement(name)){
 							if(!tmp.containsKey(key)){
 								tmp.put(key, new ArrayList<IRecipe>());
-								
-								tmp.get(key).add(recipe);
 							}
+							tmp.get(key).add(recipe);
 						}
 					}
 				}
@@ -102,7 +109,53 @@ public class SearchPane {
 				builder.scrollPane.setScrollPercentY(0);
 			}
 			
+			builder.dirtyNode = true;
+			builder.nodeIndexChange = -100;
 			builder.dirtyFilters = false;
+		}
+
+		if(builder.addNode){
+			List<IRecipe> selectedRecipes = filteredRecipes.get(builder.categories.getSelected());
+			
+			Node node = null;
+			if(selectedRecipes.size() > 0){
+				node = new Node(0, 0, selectedRecipes.get(currentNodeIndex));
+			}
+			
+			if(node != null){
+				nodeManager.addNode(node);
+				
+				builder.addNode = false;
+			}
+		}
+		
+		if(builder.dirtyNode){
+			if(filteredRecipes != null && builder.categories.getSelected() != null){
+				List<IRecipe> selectedRecipes = filteredRecipes.get(builder.categories.getSelected());
+				if(builder.nodeIndexChange == -100){
+					currentNodeIndex = 0;
+				} else {
+					currentNodeIndex += builder.nodeIndexChange;
+					builder.nodeIndexChange = 0;
+					
+					if(currentNodeIndex < 0){
+						currentNodeIndex = selectedRecipes.size() - 1;
+					} else if(currentNodeIndex > selectedRecipes.size() - 1){
+						currentNodeIndex = 0;
+					}
+				}
+				
+				builder.nodeViewText.label.setText("Node Preview (" + (currentNodeIndex + 1) + "/" + selectedRecipes.size() + ")");
+				
+				Node node = new Node(0, 0);
+				if(selectedRecipes.size() > 0){
+					node.refresh(selectedRecipes.get(currentNodeIndex));
+				}
+				
+				NodeTableBuilder.build(node, builder.currentNodeTable, false, builder.rightColumn.getWidth());
+				
+				builder.dirtyNode = false;
+			}
 		}
 	}
 	
@@ -115,5 +168,9 @@ public class SearchPane {
 	
 	public void resize(int width, int height){
 		builder.reposition();
+	}
+	
+	public void dispose(){
+		builder.dispose();
 	}
 }

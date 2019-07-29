@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -119,7 +118,6 @@ public class RecipeManager {
 				for(JsonObject machine : machines.getValuesAs(JsonObject.class)){
 					final List<IRecipe> machineRecipes = new ArrayList<IRecipe>();
 					final String machineName = machine.getString("n", "unknown");
-					machineNames.add(machineName);
 					
 					for(JsonObject jsonRecipe : machine.getJsonArray("recs").getValuesAs(JsonObject.class)){
 						if(!jsonRecipe.isEmpty()){
@@ -162,7 +160,10 @@ public class RecipeManager {
 						}
 					}
 					
-					recipes.put(machineName, machineRecipes);
+					if(!machineRecipes.isEmpty()){
+						recipes.put(machineName, machineRecipes);
+						machineNames.add(machineName);
+					}
 				}
 				recipeSources.put(sourceType, machineNames);
 				
@@ -235,9 +236,9 @@ public class RecipeManager {
 		
 		Item item = null;
 		
-		if(json.containsKey("con")){
+		if(json.containsKey("cfg")){
 			item = new ItemProgrammedCircuit();
-			((ItemProgrammedCircuit) item).configNum = json.getInt("con");
+			((ItemProgrammedCircuit) item).configNum = json.getInt("cfg");
 		} else {
 			item = new Item();
 		}

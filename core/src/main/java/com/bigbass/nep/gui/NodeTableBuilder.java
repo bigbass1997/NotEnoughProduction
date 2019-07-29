@@ -44,6 +44,14 @@ public class NodeTableBuilder {
 	private NodeTableBuilder(){}
 	
 	public static void build(Node node, Table root){
+		build(node, root, true);
+	}
+	
+	public static void build(Node node, Table root, boolean includeControlsRow){
+		build(node, root, includeControlsRow, 240);
+	}
+	
+	public static void build(Node node, Table root, boolean includeControlsRow, float width){
 		if(MOVE_TEXTURE == null){
 			MOVE_TEXTURE = new TextureRegion(new Texture(Gdx.files.internal("textures/moveNode.png")));
 		}
@@ -55,10 +63,12 @@ public class NodeTableBuilder {
 		root.reset();
 		//root.debug();
 		
-		root.setWidth(240);
+		root.setWidth(width);
 		
 		// for organization and maintainability, each type of row is in its own private function
-		nodeMenuRow(root, node);
+		if(includeControlsRow){
+			nodeMenuRow(root, node);
+		}
 		extraDataRow(root, node);
 		titleRow(root, node);
 		outputHeaderRow(root, node);

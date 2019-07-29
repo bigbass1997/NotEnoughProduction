@@ -86,8 +86,8 @@ public class GregtechRecipe implements IRecipe {
 		return false;
 	}
 	
-	public int getTotalEU(){
-		return eut * duration;
+	public long getTotalEU(){
+		return ((long) eut) * ((long) duration);
 	}
 	
 	public int getTotalEU(Tier overclock){

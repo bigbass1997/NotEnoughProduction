@@ -13,4 +13,9 @@ public class ItemProgrammedCircuit extends Item {
 		
 		this.configNum = configNum;
 	}
+	
+	@Override
+	public String getLocalizedName() {
+		return localizedName + " #" + configNum;
+	}
 }
