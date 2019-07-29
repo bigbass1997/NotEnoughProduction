@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import javax.json.JsonArray;
 import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.json.JsonValue;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -23,11 +25,24 @@ public class RecipeManager {
 	
 	private static RecipeManager instance;
 	
-	/** Table of sources, where the source is the key, and each key has a list of recipes. */
+	/**
+	 * <p>Table of recipes.</p>
+	 * 
+	 * <p>Please take care when adding recipes! The key is NOT the source name from the JSON data, but rather the
+	 * name of the crafting/process in which the recipe goes. So for a Gregtech recipe in the Compressor,
+	 * the key would be "Compressor", and all compressor recipes (in a list) would be the key's value.</p>
+	 */
 	public Hashtable<String, List<IRecipe>> recipes;
+	
+	/**
+	 * Contains a list of sources as defined by the JSON data. Each source's value is a list that contains
+	 * the keys from {@link RecipeManager#recipes} that originate from the source.
+	 */
+	public Hashtable<String, List<String>> recipeSources;
 	
 	private RecipeManager(){
 		recipes = new Hashtable<String, List<IRecipe>>();
+		recipeSources = new Hashtable<String, List<String>>();
 	}
 	
 	public static RecipeManager getInst(){
@@ -43,8 +58,6 @@ public class RecipeManager {
 	 * 
 	 * <p>If the version is not found locally, it will attempt to download it. If the version does
 	 * not exist on the remote server, a RecipeError will be thrown.</p>
-	 * 
-	 * 
 	 * 
 	 * @param version
 	 * @return
@@ -97,13 +110,16 @@ public class RecipeManager {
 		
 		for(JsonObject source : root.getJsonArray("sources").getValuesAs(JsonObject.class)){
 			final String sourceType = source.getString("type", "unknown");
-			final List<IRecipe> sourceRecipes = new ArrayList<IRecipe>();
+			
 			
 			if(sourceType.equalsIgnoreCase("gregtech")){ //*************** GREGTECH ***************\\
 				JsonArray machines = source.getJsonArray("machines");
+				ArrayList<String> machineNames = new ArrayList<String>();
 				
 				for(JsonObject machine : machines.getValuesAs(JsonObject.class)){
+					final List<IRecipe> machineRecipes = new ArrayList<IRecipe>();
 					final String machineName = machine.getString("n", "unknown");
+					machineNames.add(machineName);
 					
 					for(JsonObject jsonRecipe : machine.getJsonArray("recs").getValuesAs(JsonObject.class)){
 						if(!jsonRecipe.isEmpty()){
@@ -142,17 +158,71 @@ public class RecipeManager {
 								}
 							}
 							
-							sourceRecipes.add(recipe);
+							machineRecipes.add(recipe);
 						}
 					}
+					
+					recipes.put(machineName, machineRecipes);
 				}
+				recipeSources.put(sourceType, machineNames);
+				
 			} else if(sourceType.equalsIgnoreCase("shapeless")){ //*************** SHAPELESS ***************\\
-				//TODO shapeless recipes
+				final List<String> craftingType = new ArrayList<String>(1);
+				craftingType.add("Shapeless Crafting");
+				recipeSources.put(sourceType, craftingType);
+				
+				final List<IRecipe> shapelessRecipes = new ArrayList<IRecipe>();
+				for(JsonObject jsonRecipe : source.getJsonArray("recipes").getValuesAs(JsonObject.class)){
+					if(!jsonRecipe.isEmpty()){
+						final ShapelessRecipe recipe = new ShapelessRecipe();
+						
+						for(JsonObject jsonItem : jsonRecipe.getJsonArray("iI").getValuesAs(JsonObject.class)){
+							final Item item = parseItem(jsonItem);
+							if(item != null){
+								recipe.itemInputs.add(item);
+							}
+						}
+						
+						final Item output = parseItem(jsonRecipe.getJsonObject("o"));
+						if(output != null){
+							recipe.itemOutput = output;
+						}
+						
+						shapelessRecipes.add(recipe);
+					}
+				}
+				
+				recipes.put("Shapeless Crafting", shapelessRecipes);
 			} else if(sourceType.equalsIgnoreCase("shaped")){ //*************** SHAPED ***************\\
-				//TODO shaped recipes
+				final List<String> craftingType = new ArrayList<String>(1);
+				craftingType.add("Shaped Crafting");
+				recipeSources.put(sourceType, craftingType);
+				
+				final List<IRecipe> shapedRecipes = new ArrayList<IRecipe>();
+				for(JsonObject jsonRecipe : source.getJsonArray("recipes").getValuesAs(JsonObject.class)){
+					if(!jsonRecipe.isEmpty()){
+						final ShapedRecipe recipe = new ShapedRecipe();
+						
+						for(JsonValue jsonItem : jsonRecipe.getJsonArray("iI").getValuesAs(JsonValue.class)){
+							if(jsonItem != JsonValue.NULL && jsonItem instanceof JsonObject){
+								final Item item = parseItem((JsonObject) jsonItem);
+								if(item != null){
+									recipe.itemInputs.add(item);
+								}
+							}
+						}
+						
+						final Item output = parseItem(jsonRecipe.getJsonObject("o"));
+						if(output != null){
+							recipe.itemOutput = output;
+						}
+						
+						shapedRecipes.add(recipe);
+					}
+				}
+				
+				recipes.put("Shaped Crafting", shapedRecipes);
 			} //TODO oredicted recipes
-			
-			recipes.put(sourceType, sourceRecipes);
 		}
 		
 		return null; // intended; returning null means no errors occured

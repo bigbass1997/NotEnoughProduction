@@ -18,7 +18,9 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.bigbass.nep.Main;
 import com.bigbass.nep.gui.Node;
 import com.bigbass.nep.gui.Node.Tier;
+import com.bigbass.nep.gui.listeners.ScrollwheelInputAdapter;
 import com.bigbass.nep.gui.NodeManager;
+import com.bigbass.nep.gui.SearchPane;
 import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.recipes.RecipeManager;
 import com.bigbass.nep.recipes.RecipeManager.RecipeError;
@@ -35,7 +37,7 @@ public class PrimaryPanel extends Panel {
 	private Stage hudStage;
 	private ShapeRenderer sr;
 	
-	private SearchPanel searchPanel;
+	private SearchPane searchPane;
 	
 	private Label infoLabel;
 	
@@ -45,6 +47,10 @@ public class PrimaryPanel extends Panel {
 	
 	public PrimaryPanel() {
 		super();
+
+		System.out.println("Loading recipes...");
+		RecipeError err = RecipeManager.getInst().loadRecipes("v2.0.7.5-gt-shaped-shapeless");
+		System.out.println("Done " + err);
 		
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam.position.set(0, 0, 0);
@@ -79,23 +85,17 @@ public class PrimaryPanel extends Panel {
 		});
 		changeCameraViewport(0);
 		
-		searchPanel = new SearchPanel(200, 200, hudStage, sr);
-		searchPanel.dim.set(500, 500);
-		this.panelGroup.panels.add(searchPanel);
+		searchPane = new SearchPane(hudStage);
 		
-		
-		System.out.println("Loading recipes...");
-		RecipeError err = RecipeManager.getInst().loadRecipes("v2.0.7.5-gt-shaped-shapeless");
-		System.out.println("Done " + err);
 		
 		nodeManager = new NodeManager(worldStage);
 		
-		final List<IRecipe> gtrecs = RecipeManager.getInst().recipes.get("gregtech");
+		final List<IRecipe> gtrecs = RecipeManager.getInst().recipes.get("Compressor");
 		nodeManager.addNode(new Node(100, 300, gtrecs.get(5)));
 		nodeManager.addNode(new Node(400, 300, gtrecs.get(5), Tier.MV));
 		nodeManager.addNode(new Node(700, 300, gtrecs.get(5), Tier.EV));
-		nodeManager.addNode(new Node(100, 500, gtrecs.get(10215)));
-		nodeManager.addNode(new Node(400, 500, gtrecs.get(10215), Tier.MV));
+		nodeManager.addNode(new Node(100, 500, gtrecs.get(562)));
+		nodeManager.addNode(new Node(400, 500, gtrecs.get(562), Tier.MV));
 	}
 	
 	public void render() {
@@ -103,16 +103,25 @@ public class PrimaryPanel extends Panel {
 		sr.setColor(1, 1, 1, 0.1f);
 		sr.rect(Gdx.input.getX(), -Gdx.input.getY() + Gdx.graphics.getHeight(), 250, 10);
 		sr.end();*/
+
+		panelGroup.render();
 		
 		//worldStage.getViewport().apply();
 		worldStage.draw();
-
-		Gdx.gl.glEnable(GL20.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		panelGroup.render();
 		
+		if(searchPane.isVisible()){
+			Gdx.gl.glEnable(GL20.GL_BLEND);
+			Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+			
+			sr.begin(ShapeType.Filled);
+			sr.setColor(0.25f, 0.25f, 0.25f, 0.6f);
+			sr.rect(cam.position.x - (cam.viewportWidth * 0.5f), cam.position.y - (cam.viewportHeight * 0.5f), Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			sr.end();
+		}
+
 		//hudStage.getViewport().apply();
 		hudStage.draw();
+		
 		
 		/*sr.begin(ShapeType.Filled);
 		sr.setColor(Color.FIREBRICK);
@@ -122,12 +131,25 @@ public class PrimaryPanel extends Panel {
 	}
 	
 	public void update(float delta) {
-		if(Gdx.input.isKeyJustPressed(Keys.SPACE)){
-			searchPanel.isActive(!searchPanel.isActive());
-			searchPanel.isVisible(!searchPanel.isVisible());
+		Input input = Gdx.input;
+		
+		if(input.isKeyJustPressed(Keys.F1)){
+			searchPane.setVisible(!searchPane.isVisible());
+			
+			if(!searchPane.isVisible()){
+				Main.inputMultiplexer.addProcessor(worldStage);
+			} else {
+				Main.inputMultiplexer.removeProcessor(worldStage);
+			}
+		}
+		
+		if(input.isKeyJustPressed(Keys.ESCAPE)){
+			hudStage.unfocusAll();
 		}
 		
 		nodeManager.update();
+		
+		searchPane.refreshRecipes();
 		
 		worldStage.act(delta);
 		
@@ -135,28 +157,29 @@ public class PrimaryPanel extends Panel {
 		
 		hudStage.act(delta);
 		
-		Input input = Gdx.input;
-		boolean dirty = false;
-		if(input.isKeyPressed(Keys.W)){
-			cam.translate(0, CAM_SPEED * delta, 0);
-			dirty = true;
-		}
-		if(input.isKeyPressed(Keys.S)){
-			cam.translate(0, -CAM_SPEED * delta, 0);
-			dirty = true;
-		}
-		if(input.isKeyPressed(Keys.A)){
-			cam.translate(-CAM_SPEED * delta, 0, 0);
-			dirty = true;
-		}
-		if(input.isKeyPressed(Keys.D)){
-			cam.translate(CAM_SPEED * delta, 0, 0);
-			dirty = true;
-		}
-		if(dirty){
-			cam.update();
-			sr.setProjectionMatrix(cam.combined);
-			dirty = false;
+		if(!searchPane.isVisible()){
+			boolean dirty = false;
+			if(input.isKeyPressed(Keys.W)){
+				cam.translate(0, CAM_SPEED * delta, 0);
+				dirty = true;
+			}
+			if(input.isKeyPressed(Keys.S)){
+				cam.translate(0, -CAM_SPEED * delta, 0);
+				dirty = true;
+			}
+			if(input.isKeyPressed(Keys.A)){
+				cam.translate(-CAM_SPEED * delta, 0, 0);
+				dirty = true;
+			}
+			if(input.isKeyPressed(Keys.D)){
+				cam.translate(CAM_SPEED * delta, 0, 0);
+				dirty = true;
+			}
+			if(dirty){
+				cam.update();
+				sr.setProjectionMatrix(cam.combined);
+				dirty = false;
+			}
 		}
 
 		String info = String.format("FPS: %s",
@@ -168,6 +191,8 @@ public class PrimaryPanel extends Panel {
 	}
 
 	public void resize(int width, int height){
+		searchPane.resize(width, height);
+		
 		worldStage.getViewport().update(width, height, false);
 		hudStage.getViewport().update(width, height, true);
 		sr.setProjectionMatrix(cam.combined);

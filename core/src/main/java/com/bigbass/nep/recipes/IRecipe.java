@@ -4,4 +4,6 @@ public interface IRecipe {
 	
 	public IElement[] getInput();
 	public IElement[] getOutput();
+	
+	public boolean containsElement(String search);
 }

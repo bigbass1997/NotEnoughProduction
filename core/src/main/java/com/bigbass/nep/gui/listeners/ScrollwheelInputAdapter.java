@@ -1,4 +1,4 @@
-package com.bigbass.nep.panel;
+package com.bigbass.nep.gui.listeners;
 
 import com.badlogic.gdx.InputAdapter;
 

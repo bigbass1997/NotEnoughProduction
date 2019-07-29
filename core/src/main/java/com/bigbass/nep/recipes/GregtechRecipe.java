@@ -58,6 +58,33 @@ public class GregtechRecipe implements IRecipe {
 		
 		return arr;
 	}
+
+	@Override
+	public boolean containsElement(String search) {
+		for(Item item : itemInputs){
+			if(item.localizedName.contains(search) || item.unlocalizedName.contains(search)){
+				return true;
+			}
+		}
+		for(Item item : itemOutputs){
+			if(item.localizedName.contains(search) || item.unlocalizedName.contains(search)){
+				return true;
+			}
+		}
+
+		for(Fluid fluid : fluidInputs){
+			if(fluid.localizedName.contains(search) || fluid.unlocalizedName.contains(search)){
+				return true;
+			}
+		}
+		for(Fluid fluid : fluidOutputs){
+			if(fluid.localizedName.contains(search) || fluid.unlocalizedName.contains(search)){
+				return true;
+			}
+		}
+		
+		return false;
+	}
 	
 	public int getTotalEU(){
 		return eut * duration;
