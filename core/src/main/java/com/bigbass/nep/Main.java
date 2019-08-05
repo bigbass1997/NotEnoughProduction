@@ -51,13 +51,13 @@ public class Main extends ApplicationAdapter {
 		
 		panels.update(delta);
 		
-		Input input = Gdx.input;
+		/*Input input = Gdx.input;
 		if(input.isKeyPressed(Keys.P) && isScreenshotReady){
 			ScreenshotFactory.saveScreen();
 			isScreenshotReady = false;
 		} else if(!input.isKeyPressed(Keys.P) && !isScreenshotReady){
 			isScreenshotReady = true;
-		}
+		}*/
 		
 		/*if(input.isKeyJustPressed(Keys.ESCAPE)){
 			Gdx.app.exit();
