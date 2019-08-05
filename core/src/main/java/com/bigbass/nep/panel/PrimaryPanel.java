@@ -28,7 +28,7 @@ public class PrimaryPanel extends Panel {
 	
 	private final Color COLOR_GRID = new Color(0xDDDDDD88);
 	
-	private Camera cam;
+	private OrthographicCamera cam;
 	private Viewport worldView;
 	private Viewport hudView;
 	private Stage worldStage;
@@ -74,19 +74,21 @@ public class PrimaryPanel extends Panel {
 		sr.setAutoShapeType(true);
 		sr.setProjectionMatrix(cam.combined);
 
-		Main.inputMultiplexer.addProcessor(worldStage);
-		Main.inputMultiplexer.addProcessor(hudStage);
 		Main.inputMultiplexer.addProcessor(new ScrollwheelInputAdapter(){
 			@Override
 			public boolean scrolled(int amount) {
 				if(amount == 1){
-					//changeCameraViewport(1);
+					changeCameraViewport(1);
 				} else if(amount == -1){
-					//changeCameraViewport(-1);
+					changeCameraViewport(-1);
 				}
-				return true;
+				return false;
 			}
 		});
+		
+		Main.inputMultiplexer.addProcessor(worldStage);
+		Main.inputMultiplexer.addProcessor(hudStage);
+		
 		changeCameraViewport(0);
 		
 		nodeManager = new NodeManager(worldStage);
@@ -237,11 +239,19 @@ public class PrimaryPanel extends Panel {
 	}
 	
 	private void changeCameraViewport(int dscalar){
-		scalar += dscalar / 10f;
+		if((scalar + (dscalar / 10f)) >= 0){
+			scalar += dscalar / 10f;
+		}
 		
-		cam.viewportWidth = Gdx.graphics.getWidth() * scalar;
-		cam.viewportHeight = Gdx.graphics.getHeight() * scalar;
+		//cam.viewportWidth = Gdx.graphics.getWidth() * scalar;
+		//cam.viewportHeight = Gdx.graphics.getHeight() * scalar;
+		cam.zoom = scalar;
+		System.out.println(cam.zoom);
+		
 		cam.update();
+
+		worldStage.getViewport().apply();
+		hudStage.getViewport().apply();
 		
 		sr.setProjectionMatrix(cam.combined);
 	}
