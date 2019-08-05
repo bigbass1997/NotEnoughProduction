@@ -3,7 +3,6 @@ package com.bigbass.nep.panel;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -77,13 +76,6 @@ public class PrimaryPanel extends Panel {
 		nodeManager = new NodeManager(worldStage);
 		nodeManager.loadNodes("default");
 		
-		/*final List<IRecipe> gtrecs = RecipeManager.getInst().recipes.get("Compressor");
-		nodeManager.addNode(new Node(100, 300, gtrecs.get(5)));
-		nodeManager.addNode(new Node(400, 300, gtrecs.get(5), Tier.MV));
-		nodeManager.addNode(new Node(700, 300, gtrecs.get(5), Tier.EV));
-		nodeManager.addNode(new Node(100, 500, gtrecs.get(562)));
-		nodeManager.addNode(new Node(400, 500, gtrecs.get(562), Tier.MV));*/
-
 		searchPane = new SearchPane(hudStage, nodeManager);
 		
 		cam.translate(-cam.viewportWidth * 0.2f, -cam.viewportHeight * 0.2f, 0);
@@ -144,13 +136,6 @@ public class PrimaryPanel extends Panel {
 
 		//hudStage.getViewport().apply();
 		hudStage.draw();
-		
-		
-		/*sr.begin(ShapeType.Filled);
-		sr.setColor(Color.FIREBRICK);
-		renderDebug(sr);
-		sr.end();*/
-		
 	}
 	
 	public void update(float delta) {
@@ -245,10 +230,7 @@ public class PrimaryPanel extends Panel {
 			scalar += dscalar / 10f;
 		}
 		
-		//cam.viewportWidth = Gdx.graphics.getWidth() * scalar;
-		//cam.viewportHeight = Gdx.graphics.getHeight() * scalar;
 		cam.zoom = scalar;
-		System.out.println(cam.zoom);
 		
 		cam.update();
 
