@@ -3,6 +3,7 @@ package com.bigbass.nep.recipes;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import javax.json.JsonValue;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.bigbass.nep.ioutils.ZipUtils;
 import com.github.axet.wget.WGet;
 
 public class RecipeManager {
@@ -68,27 +70,41 @@ public class RecipeManager {
 		
 		version = version.trim().replace(".json", "");
 		FileHandle handle = Gdx.files.local("cache/" + version + ".json");
-		
+		if (!handle.exists()){
+			handle = Gdx.files.local("cache/" + version + ".json.zip");
+			if (handle.exists()) {
+				try {
+					handle = ZipUtils.unzipFile(handle);
+				} catch (IOException e) {
+					return new RecipeError("zip", e.getMessage());
+				}
+			} else
+				handle = Gdx.files.local("cache/" + version + ".json");
+		}
 		// File Checking and Retrieval \\
-		
+		boolean downloaded = false;
 		if(!handle.exists()){
 			try {
-				URL url = new URL("http://libgdxjam.com/recex/" + version + ".json");
+				URL url = new URL("http://libgdxjam.com/recex/" + version + ".json.zip");
 				File target = handle.file();
-				
 				WGet w = new WGet(url, target);
-				
 				w.download(); // blocking! attempts to download file from the url to the target File.
 			} catch (MalformedURLException e) {
 				return new RecipeError("malformed", e.getMessage());
 			} catch (RuntimeException e) {
-				e.printStackTrace();
 				return new RecipeError("runtime", e.getMessage());
 			}
+			downloaded = true;
 		}
-		
+		if (downloaded) {
+			try {
+				handle = ZipUtils.unzipFile(handle);
+			} catch (IOException e) {
+				return new RecipeError("zip", e.getMessage());
+			}
+		}
 		if(!handle.exists()){
-			return new RecipeError("fileNotFound", "After attempting to download the version, the file still cannot be found.");
+			return new RecipeError("fileNotFound", "After attempting to unGZIP or to download the version, the file still cannot be found.");
 		}
 		
 		// Recipe Parsing \\
