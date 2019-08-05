@@ -73,23 +73,6 @@ public class PrimaryPanel extends Panel {
 		sr = new ShapeRenderer(50000);
 		sr.setAutoShapeType(true);
 		sr.setProjectionMatrix(cam.combined);
-
-		Main.inputMultiplexer.addProcessor(new ScrollwheelInputAdapter(){
-			@Override
-			public boolean scrolled(int amount) {
-				if(amount == 1){
-					changeCameraViewport(1);
-				} else if(amount == -1){
-					changeCameraViewport(-1);
-				}
-				return false;
-			}
-		});
-		
-		Main.inputMultiplexer.addProcessor(worldStage);
-		Main.inputMultiplexer.addProcessor(hudStage);
-		
-		changeCameraViewport(0);
 		
 		nodeManager = new NodeManager(worldStage);
 		nodeManager.loadNodes("default");
@@ -103,9 +86,28 @@ public class PrimaryPanel extends Panel {
 
 		searchPane = new SearchPane(hudStage, nodeManager);
 		
-		
 		cam.translate(-cam.viewportWidth * 0.2f, -cam.viewportHeight * 0.2f, 0);
 		cam.update();
+
+		Main.inputMultiplexer.addProcessor(new ScrollwheelInputAdapter(){
+			@Override
+			public boolean scrolled(int amount) {
+				if(searchPane.isVisible()){
+					return false;
+				}
+				
+				if(amount == 1){
+					changeCameraViewport(1);
+				} else if(amount == -1){
+					changeCameraViewport(-1);
+				}
+				return false;
+			}
+		});
+		changeCameraViewport(0);
+		
+		Main.inputMultiplexer.addProcessor(worldStage);
+		Main.inputMultiplexer.addProcessor(hudStage);
 	}
 	
 	public void render() {
@@ -136,7 +138,7 @@ public class PrimaryPanel extends Panel {
 			
 			sr.begin(ShapeType.Filled);
 			sr.setColor(0.2f, 0.2f, 0.2f, 0.7f);
-			sr.rect(cam.position.x - (cam.viewportWidth * 0.5f), cam.position.y - (cam.viewportHeight * 0.5f), Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			sr.rect(cam.position.x - (cam.viewportWidth * 0.5f * cam.zoom), cam.position.y - (cam.viewportHeight * 0.5f * cam.zoom), Gdx.graphics.getWidth() * cam.zoom, Gdx.graphics.getHeight() * cam.zoom);
 			sr.end();
 		}
 
