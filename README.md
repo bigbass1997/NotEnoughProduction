@@ -8,6 +8,9 @@ Recipes are loaded into the program in a JSON formatted file. RecEx is a minecra
 
 NEP will include a selection of pre-exported recipe sets, via automated download from a remote host. That way, most users will not need to install any addtional mods to their game to make use of this tool.
 
+### Feature Roadmap
+All planned and WIP features can be found in [this repo's Github Projects](https://github.com/bigbass1997/NotEnoughProduction/projects). Everything is roughly laid out in order of priority (top has highest priority), although I may skip around here and there depending on what the feature involves, code-wise. New ideas for features will be added whenever I can, so as to keep the community as up to date as possible.
+
 ### FAQ
 ##### What language is this made in?
 Java, using the LibGDX framework, and some other libraries (check the build.gradle files for specifics).
