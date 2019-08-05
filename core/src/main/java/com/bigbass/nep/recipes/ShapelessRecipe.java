@@ -24,13 +24,13 @@ public class ShapelessRecipe implements IRecipe {
 	}
 	
 	@Override
-	public boolean containsElement(String search) {
-		if(itemOutput.localizedName.contains(search) || itemOutput.unlocalizedName.contains(search)){
+	public boolean containsElement(String search, IO io) {
+		if((io == IO.BOTH || io == IO.OUTPUT) && (itemOutput.localizedName.contains(search) || itemOutput.unlocalizedName.contains(search))){
 			return true;
 		}
 		
 		for(Item item : itemInputs){
-			if(item.localizedName.contains(search) || item.unlocalizedName.contains(search)){
+			if((io == IO.BOTH || io == IO.INPUT) && (item.localizedName.contains(search) || item.unlocalizedName.contains(search))){
 				return true;
 			}
 		}

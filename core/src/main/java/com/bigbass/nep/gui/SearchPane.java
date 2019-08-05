@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.bigbass.nep.gui.SearchTableBuilder.ContainerCheckBox;
 import com.bigbass.nep.recipes.IRecipe;
+import com.bigbass.nep.recipes.IRecipe.IO;
 import com.bigbass.nep.recipes.RecipeManager;
 
 public class SearchPane {
@@ -52,8 +53,9 @@ public class SearchPane {
 			
 			final Hashtable<String, List<IRecipe>> allRecipes = rm.recipes;
 			filteredRecipes.clear();
+			filteredRecipes.putAll(allRecipes);
 			
-			for(Actor boxContainer : builder.checkboxes.getChildren().items){
+			/*for(Actor boxContainer : builder.checkboxes.getChildren().items){
 				if(boxContainer instanceof ContainerCheckBox){
 					final CheckBox box = ((ContainerCheckBox) boxContainer).box;
 					final String boxText = box.getText().toString();
@@ -64,8 +66,9 @@ public class SearchPane {
 						}
 					}
 				}
-			}
+			}*/
 			
+			// Filter based on process type
 			if(builder.searchProcessType != null && !builder.searchProcessType.field.getText().isEmpty()){
 				final String type = builder.searchProcessType.field.getText();
 				
@@ -79,13 +82,37 @@ public class SearchPane {
 				filteredRecipes = tmp;
 			}
 			
+			// Determine IO filter for next step
+			IO io = IO.BOTH; // remains BOTH if both the checkboxes have the same value
+			ContainerCheckBox input = null;
+			ContainerCheckBox output = null;
+			for(Actor boxContainer : builder.ioCheckboxes.getChildren().items){
+				if(boxContainer instanceof ContainerCheckBox){
+					final CheckBox box = ((ContainerCheckBox) boxContainer).box;
+					
+					if(box.getText().toString().equalsIgnoreCase("input")){
+						input = (ContainerCheckBox) boxContainer;
+					} else if(box.getText().toString().equalsIgnoreCase("output")){
+						output = (ContainerCheckBox) boxContainer;
+					}
+				}
+			}
+			if(input != null && input != null){
+				if(input.box.isChecked() && !output.box.isChecked()){
+					io = IO.INPUT;
+				} else if(!input.box.isChecked() && output.box.isChecked()){
+					io = IO.OUTPUT;
+				}
+			}
+			
+			// Filter based on element search name
 			if(builder.searchName != null && !builder.searchName.field.getText().isEmpty()){
 				final String name = builder.searchName.field.getText();
 				
 				final Hashtable<String, List<IRecipe>> tmp = new Hashtable<String, List<IRecipe>>();
 				for(String key : filteredRecipes.keySet()){
 					for(IRecipe recipe : filteredRecipes.get(key)){
-						if(recipe.containsElement(name)){
+						if(recipe.containsElement(name, io)){
 							if(!tmp.containsKey(key)){
 								tmp.put(key, new ArrayList<IRecipe>());
 							}

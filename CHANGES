@@ -1,5 +1,5 @@
 [0.0.1]
-- Initial commit of progress to github
+- Initial commits of progress to github
 - Progress includes:
 	- Loading recipe JSON files and processing them into IRecipe classes
 	- Downloading recipe data from a remote host if not already found in cache (hardcoded filename at the moment)
@@ -12,5 +12,5 @@
 	- Nodes are able to be dragged, in order to change their position on the screen
 	- Nodes are able to be removed from the screen
 	- Using the Search GUI works, and new nodes are able to be added using it
+	- Search GUI Filters include: Item/Fluid name, whether the item/fluid is in the Input, Output, or both, and name of the process type (machine name, etc)
 	- Saving and automatic loading of nodes from a file
-	

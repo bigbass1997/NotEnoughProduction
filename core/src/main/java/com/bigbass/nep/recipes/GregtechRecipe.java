@@ -60,26 +60,32 @@ public class GregtechRecipe implements IRecipe {
 	}
 
 	@Override
-	public boolean containsElement(String search) {
-		for(Item item : itemInputs){
-			if(item.localizedName.contains(search) || item.unlocalizedName.contains(search)){
-				return true;
+	public boolean containsElement(String search, IO io) {
+		if(io == IO.BOTH || io == IO.INPUT){
+			for(Item item : itemInputs){
+				if(item.localizedName.contains(search) || item.unlocalizedName.contains(search)){
+					return true;
+				}
 			}
-		}
-		for(Item item : itemOutputs){
-			if(item.localizedName.contains(search) || item.unlocalizedName.contains(search)){
-				return true;
+			
+			for(Fluid fluid : fluidInputs){
+				if(fluid.localizedName.contains(search) || fluid.unlocalizedName.contains(search)){
+					return true;
+				}
 			}
 		}
 
-		for(Fluid fluid : fluidInputs){
-			if(fluid.localizedName.contains(search) || fluid.unlocalizedName.contains(search)){
-				return true;
+		if(io == IO.BOTH || io == IO.OUTPUT){
+			for(Item item : itemOutputs){
+				if(item.localizedName.contains(search) || item.unlocalizedName.contains(search)){
+					return true;
+				}
 			}
-		}
-		for(Fluid fluid : fluidOutputs){
-			if(fluid.localizedName.contains(search) || fluid.unlocalizedName.contains(search)){
-				return true;
+			
+			for(Fluid fluid : fluidOutputs){
+				if(fluid.localizedName.contains(search) || fluid.unlocalizedName.contains(search)){
+					return true;
+				}
 			}
 		}
 		

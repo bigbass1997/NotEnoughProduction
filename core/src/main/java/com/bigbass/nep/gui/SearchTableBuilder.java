@@ -25,15 +25,16 @@ import com.bigbass.nep.gui.actors.ContainerLabel;
 import com.bigbass.nep.gui.actors.CustomContainer;
 import com.bigbass.nep.gui.actors.CustomScrollPane;
 import com.bigbass.nep.gui.listeners.HoverListener;
-import com.bigbass.nep.recipes.RecipeManager;
 import com.bigbass.nep.skins.SkinManager;
 
 public class SearchTableBuilder {
 
 	private final String FONTPATH = "fonts/droid-sans-mono.ttf";
 	
-	private final Color COLOR_TEXT_SEARCH = new Color(0xCC4444FF);
-	private final Color COLOR_SOURCE_SEARCH = new Color(0xA4B2D7FF);
+	private final Color COLOR_FILTER_HEADER = new Color(0xCC4444FF);
+	private final Color COLOR_TEXT_SEARCH = new Color(0xA8C2D7FF);
+	//private final Color COLOR_SOURCE_SEARCH = new Color(0xA4B2D7FF);
+	private final Color COLOR_IO_SEARCH = new Color(0xA4B2D7FF);
 	private final Color COLOR_MACHINE_SEARCH = new Color(0xB4C2E7FF);
 	private final Color COLOR_ADD_NODE = new Color(0x33EE33FF);
 	
@@ -45,7 +46,8 @@ public class SearchTableBuilder {
 	private float tableWidth;
 	
 	public ContainerTextField searchName;
-	public Table checkboxes;
+	//public Table checkboxes;
+	public Table ioCheckboxes;
 	public ContainerTextField searchProcessType;
 	public List<String> categories;
 	public CustomScrollPane scrollPane;
@@ -77,12 +79,14 @@ public class SearchTableBuilder {
 		
 		root.setWidth(tableWidth);
 		
-		// left column
+		// left column (filters)
 		Table leftColumn = new Table(root.getSkin());
 		leftColumn.setWidth(tableWidth * 0.5f);
 		
-		textSearchRow(leftColumn);
-		sourceSelectRow(leftColumn);
+		filterTextHeaderRow(leftColumn);
+		elementSearchRow(leftColumn);
+		//sourceSelectRow(leftColumn);
+		searchInputVsOutputRow(leftColumn);
 		machineSearchRow(leftColumn);
 		
 		root.add(leftColumn).align(Align.top);
@@ -109,15 +113,33 @@ public class SearchTableBuilder {
 		root.setPosition((Gdx.graphics.getWidth() * 0.5f) - (root.getWidth() * 0.5f), Gdx.graphics.getHeight() - root.getPrefHeight());
 	}
 	
-	// left column //
+	// ************* left column ************* //
 	
-	private void textSearchRow(Table root){
+	private void filterTextHeaderRow(Table root){
+		root.row();
+		final Skin rootSkin = root.getSkin();
+		Table nested = new Table(rootSkin);
+		
+		ContainerLabel headerText = new ContainerLabel(SkinManager.getSkin(FONTPATH, 14));
+		headerText.label.setText("Filters");
+		headerText.label.setAlignment(Align.center);
+		headerText.setBackgroundColor(COLOR_FILTER_HEADER);
+		headerText.setForegroundColor(COLOR_FILTER_HEADER);
+		headerText.minWidth(root.getWidth());
+		
+		
+		nested.add(headerText);
+		
+		root.add(nested);
+	}
+	
+	private void elementSearchRow(Table root){
 		root.row();
 		final Skin rootSkin = root.getSkin();
 		Table nested = new Table(rootSkin);
 		
 		ContainerLabel searchText = new ContainerLabel(SkinManager.getSkin(FONTPATH, 12));
-		searchText.label.setText("Element Search:");
+		searchText.label.setText("Item/Fluid Name:");
 		searchText.setBackgroundColor(COLOR_TEXT_SEARCH);
 		searchText.setForegroundColor(COLOR_TEXT_SEARCH);
 		searchText.minWidth(root.getWidth() * 0.4f);
@@ -141,7 +163,51 @@ public class SearchTableBuilder {
 		root.add(nested);
 	}
 	
-	private void sourceSelectRow(Table root){
+	private void searchInputVsOutputRow(Table root){
+		root.row();
+		final Skin rootSkin = root.getSkin();
+		Table nested = new Table(rootSkin);
+		
+		ContainerLabel sourceText = new ContainerLabel(SkinManager.getSkin(FONTPATH, 12));
+		sourceText.label.setText("Input, Output, or both:");
+		sourceText.setBackgroundColor(COLOR_IO_SEARCH);
+		sourceText.setForegroundColor(COLOR_IO_SEARCH);
+		sourceText.minWidth(root.getWidth() * 0.4f);
+		
+		ioCheckboxes = new Table(rootSkin);
+		final String[] boxLabels = new String[]{"Input", "Output"}; // using this array plus the for-loop reduces redundant code
+		for(String boxLabel : boxLabels){
+			ioCheckboxes.row();
+			
+			ContainerCheckBox box = new ContainerCheckBox(SkinManager.getSkin(FONTPATH, 12));
+			box.box.setText(boxLabel);
+			box.minWidth(root.getWidth() * 0.6f);
+			box.box.setChecked(true);
+			box.box.align(Align.left);
+			
+			box.setBackgroundColor(new Color(0x3F3F3FFF));
+			CheckBoxStyle st = new CheckBoxStyle(box.box.getStyle());
+			st.fontColor = ColorCache.getForegroundColor(new Color(0x3F3F3FFF));
+			box.box.setStyle(st);
+			
+			box.box.addListener(new ClickListener(){
+				@Override
+				public void clicked(InputEvent event, float x, float y){
+					dirtyFilters = true;
+				}
+			});
+			
+			ioCheckboxes.add(box);
+		}
+		
+
+		nested.add(sourceText).fillY();
+		nested.add(ioCheckboxes);
+		
+		root.add(nested);
+	}
+	
+	/*private void sourceSelectRow(Table root){
 		root.row();
 		final Skin rootSkin = root.getSkin();
 		Table nested = new Table(rootSkin);
@@ -182,7 +248,7 @@ public class SearchTableBuilder {
 		nested.add(checkboxes);
 		
 		root.add(nested);
-	}
+	}*/
 	
 	private void machineSearchRow(Table root){
 		root.row();
@@ -215,7 +281,7 @@ public class SearchTableBuilder {
 		root.add(nested);
 	}
 	
-	// right column //
+	// ************* right column ************* //
 	
 	private void machineListRow(Table root){
 		root.row();
@@ -223,7 +289,7 @@ public class SearchTableBuilder {
 		Table nested = new Table(rootSkin);
 		
 		ContainerLabel catText = new ContainerLabel(SkinManager.getSkin(FONTPATH, 14));
-		catText.label.setText("Process Types");
+		catText.label.setText("Process Type List");
 		catText.label.setAlignment(Align.center);
 		catText.setBackgroundColor(Color.GOLD);
 		catText.setForegroundColor(Color.GOLD);
@@ -319,7 +385,7 @@ public class SearchTableBuilder {
 		
 		currentNodeTable = new Table(SkinManager.getSkin(FONTPATH, 10));
 		currentNodeTable.addListener(new InputListener(){
-			
+			//not sure why this is here lol, keep it as a reminder
 		});
 		
 		root.add(currentNodeTable);

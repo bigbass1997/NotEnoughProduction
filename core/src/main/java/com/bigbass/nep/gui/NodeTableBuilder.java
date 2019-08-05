@@ -162,7 +162,7 @@ public class NodeTableBuilder {
 		rate.label.setAlignment(Align.right);
 		
 		
-		nested.add(title);
+		nested.add(title).fillY();
 		nested.add(rate);
 		
 		root.add(nested);
@@ -201,7 +201,7 @@ public class NodeTableBuilder {
 		cost.label.setAlignment(Align.center);
 		
 		
-		nested.add(output);
+		nested.add(output).fillY();
 		nested.add(cost);
 		
 		root.add(nested);
