@@ -71,10 +71,10 @@ public class NodeTableBuilder {
 		}
 		extraDataRow(root, node);
 		titleRow(root, node);
-		outputHeaderRow(root, node);
-		outputRows(root, node);
 		inputHeaderRow(root, node);
 		inputRows(root, node);
+		outputHeaderRow(root, node);
+		outputRows(root, node);
 	}
 	
 	private static void nodeMenuRow(Table root, Node node){
@@ -168,7 +168,7 @@ public class NodeTableBuilder {
 		root.add(nested);
 	}
 	
-	private static void outputHeaderRow(Table root, Node node){
+	private static void inputHeaderRow(Table root, Node node){
 		root.row();
 		final Skin rootSkin = root.getSkin();
 		Table nested = new Table(rootSkin);
@@ -176,11 +176,11 @@ public class NodeTableBuilder {
 		IRecipe rec = node.getRecipe();
 		
 		// output
-		ContainerLabel output = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-		output.label.setText("Output:");
-		output.setBackgroundColor(COLOR_OUTPUT_HEADER);
-		output.setForegroundColor(COLOR_OUTPUT_HEADER);
-		output.minWidth(root.getWidth() * 0.6f);
+		ContainerLabel input = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
+		input.label.setText("Input:");
+		input.setBackgroundColor(COLOR_INPUT_HEADER);
+		input.setForegroundColor(COLOR_INPUT_HEADER);
+		input.minWidth(root.getWidth() * 0.6f);
 		
 		// cost
 		ContainerLabel cost = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
@@ -201,81 +201,8 @@ public class NodeTableBuilder {
 		cost.label.setAlignment(Align.center);
 		
 		
-		nested.add(output).fillY();
-		nested.add(cost);
-		
-		root.add(nested);
-	}
-	
-	private static void outputRows(Table root, Node node){
-		final Skin rootSkin = root.getSkin();
-
-		IRecipe rec = node.getRecipe();
-		
-		if(rec != null){
-			for(IElement el : rec.getOutput()){
-				root.row();
-				HoverableTable nested = new HoverableTable(rootSkin);
-				
-				// name
-				ContainerLabel name = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-				name.label.setText(el.getLocalizedName());
-				name.setBackgroundColor(COLOR_OUTPUTS_BAR);
-				name.setForegroundColor(COLOR_OUTPUTS_BAR);
-				name.minWidth(root.getWidth() * 0.8f);
-				
-				// qty
-				ContainerLabel qty = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-				String qtyText = String.valueOf(el.getAmount());
-				if(el instanceof Fluid){
-					qtyText += "L";
-				}
-				qty.label.setText(qtyText);
-				qty.setBackgroundColor(COLOR_OUTPUTS_BAR);
-				qty.setForegroundColor(COLOR_OUTPUTS_BAR);
-				qty.minWidth(root.getWidth() * 0.2f);
-				qty.label.setAlignment(Align.center);
-				
-				nested.add(name);
-				nested.add(qty).fillY();
-				
-				root.add(nested);
-			}
-		}
-	}
-	
-	private static void inputHeaderRow(Table root, Node node){
-		root.row();
-		final Skin rootSkin = root.getSkin();
-		Table nested = new Table(rootSkin);
-
-		IRecipe rec = node.getRecipe();
-		
-		// output
-		ContainerLabel input = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-		input.label.setText("Input:");
-		input.setBackgroundColor(COLOR_INPUT_HEADER);
-		input.setForegroundColor(COLOR_INPUT_HEADER);
-		input.minWidth(root.getWidth() * 0.6f);
-		
-		// cost
-		ContainerLabel ticks = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-		if(rec instanceof GregtechRecipe){
-			GregtechRecipe gtrec = (GregtechRecipe) rec;
-			if(node.override != null){
-				ticks.label.setText(gtrec.getOverclockedDuration(node.override) + " ticks");
-			} else {
-				ticks.label.setText(gtrec.duration + " ticks");
-			}
-		}
-		ticks.setBackgroundColor(COLOR_INPUT_HEADER);
-		ticks.setForegroundColor(COLOR_INPUT_HEADER);
-		ticks.minWidth(root.getWidth() * 0.4f);
-		ticks.label.setAlignment(Align.right);
-		
-		
 		nested.add(input);
-		nested.add(ticks);
+		nested.add(cost);
 		
 		root.add(nested);
 	}
@@ -306,6 +233,80 @@ public class NodeTableBuilder {
 				qty.label.setText(qtyText);
 				qty.setBackgroundColor(COLOR_INPUTS_BAR);
 				qty.setForegroundColor(COLOR_INPUTS_BAR);
+				qty.minWidth(root.getWidth() * 0.2f);
+				qty.label.setAlignment(Align.center);
+				
+				nested.add(name);
+				nested.add(qty).fillY();
+				
+				root.add(nested);
+			}
+		}
+	}
+
+	private static void outputHeaderRow(Table root, Node node){
+		root.row();
+		final Skin rootSkin = root.getSkin();
+		Table nested = new Table(rootSkin);
+
+		IRecipe rec = node.getRecipe();
+		
+		// output
+		ContainerLabel output = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
+		output.label.setText("Output:");
+		output.setBackgroundColor(COLOR_OUTPUT_HEADER);
+		output.setForegroundColor(COLOR_OUTPUT_HEADER);
+		output.minWidth(root.getWidth() * 0.6f);
+		
+
+		// ticks
+		ContainerLabel ticks = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
+		if(rec instanceof GregtechRecipe){
+			GregtechRecipe gtrec = (GregtechRecipe) rec;
+			if(node.override != null){
+				ticks.label.setText(gtrec.getOverclockedDuration(node.override) + " ticks");
+			} else {
+				ticks.label.setText(gtrec.duration + " ticks");
+			}
+		}
+		ticks.setBackgroundColor(COLOR_INPUT_HEADER);
+		ticks.setForegroundColor(COLOR_INPUT_HEADER);
+		ticks.minWidth(root.getWidth() * 0.4f);
+		ticks.label.setAlignment(Align.right);
+		
+		
+		nested.add(output).fillY();
+		nested.add(ticks);
+		
+		root.add(nested);
+	}
+	
+	private static void outputRows(Table root, Node node){
+		final Skin rootSkin = root.getSkin();
+
+		IRecipe rec = node.getRecipe();
+		
+		if(rec != null){
+			for(IElement el : rec.getOutput()){
+				root.row();
+				HoverableTable nested = new HoverableTable(rootSkin);
+				
+				// name
+				ContainerLabel name = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
+				name.label.setText(el.getLocalizedName());
+				name.setBackgroundColor(COLOR_OUTPUTS_BAR);
+				name.setForegroundColor(COLOR_OUTPUTS_BAR);
+				name.minWidth(root.getWidth() * 0.8f);
+				
+				// qty
+				ContainerLabel qty = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
+				String qtyText = String.valueOf(el.getAmount());
+				if(el instanceof Fluid){
+					qtyText += "L";
+				}
+				qty.label.setText(qtyText);
+				qty.setBackgroundColor(COLOR_OUTPUTS_BAR);
+				qty.setForegroundColor(COLOR_OUTPUTS_BAR);
 				qty.minWidth(root.getWidth() * 0.2f);
 				qty.label.setAlignment(Align.center);
 				
