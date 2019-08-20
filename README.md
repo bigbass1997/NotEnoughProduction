@@ -17,6 +17,14 @@ Java, using the LibGDX framework, and some other libraries (check the build.grad
 ##### What platforms will you support?
 Only desktop for the foreseeable future. Android has weird quirks that make developing for it a pain, especially when using static objects. LibGDX can deploy to the web, via GWT, but this has even more limitations, and is just not feasible for this type of application. iOS is just as wonky, and Apple requires developers to pay $100+ just to attempt to submit apps to their appstore.
 
+### Usage & Downloads
+Pre-compiled versions of the program are found via [Releases](https://github.com/bigbass1997/NotEnoughProduction/releases). For the time being, please refer to the first release (v0.0.1) for important details regarding the operation of the program. This section of the README will be updated later with more detailed instructions.
+
+### Building
+Gradle is used as the dependency and build management software. Included in the repo is the Gradle Wrapper which allows you to run gradle commands from the root directory of the project. You can compile and run the program with `gradlew run`. To build the source into a runnable jar, execute `gradlew lwjgl3:jar`.
+
+If you need to add a new dependency (e.g. library, framework, etc), open `core/build.gradle` and add the maven identifier for whatever you are adding. Please try to use dependencies that are available via maven, instead of jar files that are found locally.
+
 ### License
 This project/program is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International, except where other licenses are included.
 
