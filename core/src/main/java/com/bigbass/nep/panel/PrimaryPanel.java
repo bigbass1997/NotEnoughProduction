@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.bigbass.nep.Main;
 import com.bigbass.nep.gui.listeners.ScrollwheelInputAdapter;
 import com.bigbass.nep.gui.NodeManager;
+import com.bigbass.nep.gui.PathManager;
 import com.bigbass.nep.gui.SearchPane;
 import com.bigbass.nep.recipes.RecipeManager;
 import com.bigbass.nep.recipes.RecipeManager.RecipeError;
@@ -73,8 +74,11 @@ public class PrimaryPanel extends Panel {
 		sr.setAutoShapeType(true);
 		sr.setProjectionMatrix(cam.combined);
 		
-		nodeManager = new NodeManager(worldStage);
+		NodeManager.init(worldStage);
+		nodeManager = NodeManager.instance();
 		nodeManager.loadNodes("default");
+
+		PathManager.init(worldStage);
 		
 		searchPane = new SearchPane(hudStage, nodeManager);
 		

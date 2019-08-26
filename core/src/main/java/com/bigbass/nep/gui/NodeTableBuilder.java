@@ -1,6 +1,7 @@
 package com.bigbass.nep.gui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -238,6 +239,19 @@ public class NodeTableBuilder {
 				
 				nested.add(name);
 				nested.add(qty).fillY();
+				
+				nested.addListener(new ClickListener(Buttons.RIGHT){ // Initiate new path
+					@Override
+					public void clicked(InputEvent event, float x, float y){
+						
+					}
+				});
+				nested.addListener(new ClickListener(Buttons.LEFT){ // Open search for this element, or finish path
+					@Override
+					public void clicked(InputEvent event, float x, float y){
+						
+					}
+				});
 				
 				root.add(nested);
 			}

@@ -18,24 +18,20 @@ import javax.json.JsonReader;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.bigbass.nep.gui.Node.Tier;
-import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.recipes.RecipeManager;
 
-public class NodeManager {
-
-	private static NodeManager instance;
+public class PathManager {
+	
+	private static PathManager instance;
 	
 	private final Stage stage;
 	
-	private final List<Node> nodes;
-	private final List<Node> nodesToRemove;
+	private List<Path> paths;
 	
-	private NodeManager(Stage stage){
+	private PathManager(Stage stage){
 		this.stage = stage;
 		
-		nodes = new ArrayList<Node>();
-		nodesToRemove = new ArrayList<Node>();
+		paths = new ArrayList<Path>();
 	}
 	
 	/**
@@ -46,42 +42,40 @@ public class NodeManager {
 	 * 
 	 * @return
 	 */
-	public static NodeManager instance(){
+	public static PathManager instance(){
 		return instance;
 	}
 	
 	public static void init(Stage stage){
-		instance = new NodeManager(stage);
+		instance = new PathManager(stage);
 	}
 	
 	public void update(){
-		for(Node node : nodes){
-			if(node.shouldRemove()){
-				nodesToRemove.add(node);
+		/*for(Path path : paths){
+			if(path.shouldRemove()){
+				pathsToRemove.add(path);
 			}
 		}
 		
-		for(Node node : nodesToRemove){
-			removeNode(node);
+		for(Path path : pathsToRemove){
+			removePath(path);
 		}
-		nodesToRemove.clear();
+		pathsToRemove.clear();*/
 	}
 	
-	public void addNode(Node node){
-		if(node != null){
-			nodes.add(node);
-			stage.addActor(node.getActor());
-		}
-	}
-	
-	public void removeNode(Node node){
-		if(node != null){
-			node.getActor().remove();
-			nodes.remove(node);
+	public void addPath(Path path){
+		if(path != null){
+			paths.add(path);
 		}
 	}
 	
-	public void loadNodes(String filename){
+	public void removePath(Path path){
+		if(path != null){
+			paths.remove(path);
+		}
+	}
+	
+	public void loadPaths(String filename){
 		if(filename == null || filename.trim().isEmpty()){
 			return;
 		}
@@ -110,40 +104,40 @@ public class NodeManager {
 			return;
 		}
 		
-		final JsonArray arr = root.getJsonArray("nodes");
+		final JsonArray arr = root.getJsonArray("paths");
 		if(arr == null){
 			return;
 		}
 		
 		final RecipeManager rm = RecipeManager.getInst();
-		for(JsonObject jsonNode : arr.getValuesAs(JsonObject.class)){
-			final float x = (float) jsonNode.getJsonNumber("x").doubleValue();
-			final float y = (float) jsonNode.getJsonNumber("y").doubleValue();
-			final int overrideNum = jsonNode.getInt("override", -1);
+		for(JsonObject jsonPath : arr.getValuesAs(JsonObject.class)){
+			/*final float x = (float) jsonPath.getJsonNumber("x").doubleValue();
+			final float y = (float) jsonPath.getJsonNumber("y").doubleValue();
+			final int overrideNum = jsonPath.getInt("override", -1);
 			Tier override = null;
 			if(overrideNum != -1){
 				override = Tier.getTierFromNum(overrideNum);
 			}
-			final int hashCode = jsonNode.getInt("recipeHash", -1);
+			final int hashCode = jsonPath.getInt("recipeHash", -1);
 			
 			IRecipe rec = null;
 			if(hashCode != -1){
 				rec = rm.findRecipe(hashCode);
 			}
 			
-			addNode(new Node(x, y, rec, override));
+			addPath(new Path(x, y, rec, override));*/
 		}
 	}
 	
-	public void saveNodes(String filename){
+	public void savePaths(String filename){
 		JsonObjectBuilder root = Json.createObjectBuilder();
 		
 		JsonArrayBuilder builder = Json.createArrayBuilder();
-		for(Node node : nodes){
-			builder.add(node.toJson());
+		for(Path path : paths){
+			builder.add(path.toJson());
 		}
 		
-		root.add("nodes", builder.build());
+		root.add("paths", builder.build());
 		
 		FileHandle dir = Gdx.files.local("saves/");
 		if(!dir.exists()){
@@ -167,7 +161,7 @@ public class NodeManager {
 		}
 	}
 	
-	public List<Node> getNodes(){
-		return nodes;
+	public List<Path> getPaths(){
+		return paths;
 	}
 }
