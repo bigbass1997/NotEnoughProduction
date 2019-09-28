@@ -26,7 +26,8 @@ public class PrimaryPanel extends Panel {
 
 	private final float CAM_SPEED = 400;
 	
-	private final Color COLOR_GRID = new Color(0xDDDDDD88);
+	private final Color COLOR_GRID = new Color(0xBBBBBB59);
+	private final Color BACKGROUND_COLOR = new Color(0xDFDFDFFF);
 	
 	private OrthographicCamera cam;
 	private Viewport worldView;
@@ -67,7 +68,7 @@ public class PrimaryPanel extends Panel {
 		
 		helpLabel = new Label("Press the F1 key to open the Recipe Search GUI\nUse the WASD keys to move around the screen\nCTRL+S or closing the program, will save current nodes", SkinManager.getSkin("fonts/droid-sans-mono.ttf", 12));
 		helpLabel.setAlignment(Align.center);
-		helpLabel.setColor(Color.CYAN);
+		helpLabel.setColor(Color.BLACK);
 		hudStage.addActor(helpLabel);
 		
 		sr = new ShapeRenderer(50000);
@@ -107,14 +108,20 @@ public class PrimaryPanel extends Panel {
 	}
 	
 	public void render() {
-		sr.begin(ShapeType.Line);
+		sr.begin(ShapeType.Filled);
+		
+		sr.setColor(BACKGROUND_COLOR);
+		sr.rect(cam.position.x - (cam.viewportWidth * 0.5f * cam.zoom), cam.position.y - (cam.viewportHeight * 0.5f * cam.zoom), Gdx.graphics.getWidth() * cam.zoom, Gdx.graphics.getHeight() * cam.zoom);
+		
+		sr.set(ShapeType.Line);
 
 		sr.setColor(COLOR_GRID);
+		final int GAP = 20;
 		for(int x = -500; x < 500; x++){
-			sr.line(x * 50, -50000, x * 50, 50000);
+			sr.line(x * GAP, -50000, x * GAP, 50000);
 		}
 		for(int y = -500; y < 500; y++){
-			sr.line(-50000, y * 50, 50000, y * 50);
+			sr.line(-50000, y * GAP, 50000, y * GAP);
 		}
 		
 		sr.setColor(1, 0, 0, 1);
