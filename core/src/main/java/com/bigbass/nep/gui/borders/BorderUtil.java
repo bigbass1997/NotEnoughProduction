@@ -14,20 +14,19 @@ public class BorderUtil {
 			public void drawShapes(ShapeDrawer shapeDrawer, float x, float y, float width, float height) {
 				for(BorderSide sideData : borders){
 					final int thick = sideData.thickness;
-					final int halfThickUp = Math.round(thick * 0.5f);
-					final int halfThickDown = (int) (thick * 0.5f);
+					final float halfThick = thick * 0.5f;
 					
 					if((sideData.side & BorderSide.TOP) == BorderSide.TOP){
-						shapeDrawer.line(x - halfThickDown, y + height, x + width + halfThickUp, y + height, Color.BLACK, thick);
+						shapeDrawer.line(x - halfThick, y + height, x + width + halfThick, y + height, Color.BLACK, thick);
 					}
 					if((sideData.side & BorderSide.BOTTOM) == BorderSide.BOTTOM){
-						shapeDrawer.line(x, y, x + width, y, Color.BLACK, thick);
+						shapeDrawer.line(x - halfThick, y, x + width + halfThick, y, Color.BLACK, thick);
 					}
 					if((sideData.side & BorderSide.LEFT) == BorderSide.LEFT){
-						shapeDrawer.line(x, y, x, y + height, Color.BLACK, thick);
+						shapeDrawer.line(x, y - halfThick, x, y + height + halfThick, Color.BLACK, thick);
 					}
 					if((sideData.side & BorderSide.RIGHT) == BorderSide.RIGHT){
-						shapeDrawer.line(x + width, y, x + width, y + height, Color.BLACK, thick);
+						shapeDrawer.line(x + width, y - halfThick, x + width, y + height + halfThick, Color.BLACK, thick);
 					}
 				}
 			}

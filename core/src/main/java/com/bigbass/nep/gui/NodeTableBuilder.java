@@ -170,7 +170,7 @@ public class NodeTableBuilder {
 		nested.add(title).fillY();
 		nested.add(rate);
 		
-		root.add(nested, BorderSide.mask(BorderSide.ALL, 1));
+		root.add(nested/*, BorderSide.mask(BorderSide.ALL, 1)*/);
 	}
 	
 	private static void inputHeaderRow(Table root, Node node){
