@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.Scaling;
 import com.bigbass.nep.gui.actors.ContainerLabel;
 import com.bigbass.nep.gui.actors.CustomContainer;
 import com.bigbass.nep.gui.actors.CustomScrollPane;
+import com.bigbass.nep.gui.borders.BorderedTable;
 import com.bigbass.nep.gui.listeners.HoverListener;
 import com.bigbass.nep.skins.SkinManager;
 
@@ -51,7 +52,7 @@ public class SearchTableBuilder {
 	public ContainerTextField searchProcessType;
 	public List<String> categories;
 	public CustomScrollPane scrollPane;
-	public Table currentNodeTable;
+	public BorderedTable currentNodeTable;
 	public Table rightColumn;
 	public ContainerLabel nodeViewText;
 	
@@ -383,7 +384,7 @@ public class SearchTableBuilder {
 	private void nodeViewRow(Table root){
 		root.row();
 		
-		currentNodeTable = new Table(SkinManager.getSkin(FONTPATH, 10));
+		currentNodeTable = new BorderedTable(SkinManager.getSkin(FONTPATH, 10));
 		currentNodeTable.addListener(new InputListener(){
 			//not sure why this is here lol, keep it as a reminder
 		});

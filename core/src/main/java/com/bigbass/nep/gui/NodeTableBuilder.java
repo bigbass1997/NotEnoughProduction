@@ -17,6 +17,8 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.bigbass.nep.gui.Node.Tier;
 import com.bigbass.nep.gui.actors.ContainerLabel;
+import com.bigbass.nep.gui.borders.BorderSide;
+import com.bigbass.nep.gui.borders.BorderedTable;
 import com.bigbass.nep.gui.listeners.HoverListener;
 import com.bigbass.nep.recipes.Fluid;
 import com.bigbass.nep.recipes.GregtechRecipe;
@@ -44,15 +46,15 @@ public class NodeTableBuilder {
 	
 	private NodeTableBuilder(){}
 	
-	public static void build(Node node, Table root){
+	public static void build(Node node, BorderedTable root){
 		build(node, root, true);
 	}
 	
-	public static void build(Node node, Table root, boolean includeControlsRow){
+	public static void build(Node node, BorderedTable root, boolean includeControlsRow){
 		build(node, root, includeControlsRow, 240);
 	}
 	
-	public static void build(Node node, Table root, boolean includeControlsRow, float width){
+	public static void build(Node node, BorderedTable root, boolean includeControlsRow, float width){
 		if(MOVE_TEXTURE == null){
 			MOVE_TEXTURE = new TextureRegion(new Texture(Gdx.files.internal("textures/moveNode.png")));
 		}
@@ -60,6 +62,8 @@ public class NodeTableBuilder {
 		if(REMOVE_TEXTURE == null){
 			REMOVE_TEXTURE = new TextureRegion(new Texture(Gdx.files.internal("textures/removeNode.png")));
 		}
+		
+		//final ShapeDrawer sd = new BorderDrawableFactory(stageBatch);
 		
 		root.reset();
 		//root.debug();
@@ -126,10 +130,10 @@ public class NodeTableBuilder {
 		}
 	}
 	
-	private static void titleRow(Table root, Node node){
+	private static void titleRow(BorderedTable root, Node node){
 		root.row();
 		final Skin rootSkin = root.getSkin();
-		Table nested = new Table(rootSkin);
+		BorderedTable nested = new BorderedTable(rootSkin);
 		
 		final Color col = new Color(0xB4C2E7FF);
 		
@@ -166,7 +170,7 @@ public class NodeTableBuilder {
 		nested.add(title).fillY();
 		nested.add(rate);
 		
-		root.add(nested);
+		root.add(nested, BorderSide.mask(BorderSide.ALL, 1));
 	}
 	
 	private static void inputHeaderRow(Table root, Node node){

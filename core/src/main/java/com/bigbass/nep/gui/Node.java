@@ -7,6 +7,7 @@ import javax.json.JsonObjectBuilder;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.bigbass.nep.gui.borders.BorderedTable;
 import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.skins.SkinManager;
 
@@ -66,7 +67,7 @@ public class Node {
 		}
 	}
 	
-	private Table table;
+	private BorderedTable table;
 	private IRecipe recipe;
 	protected Tier override;
 	
@@ -85,7 +86,7 @@ public class Node {
 	public Node(float x, float y, IRecipe recipe, Tier override){
 		pos = new Vector2(x, y);
 		
-		table = new Table(SkinManager.getSkin("fonts/droid-sans-mono.ttf", 10)); // font doesn't really matter here, but skin necessary for other stuff
+		table = new BorderedTable(SkinManager.getSkin("fonts/droid-sans-mono.ttf", 10)); // font doesn't really matter here, but skin necessary for other stuff
 		
 		this.override = override;
 		

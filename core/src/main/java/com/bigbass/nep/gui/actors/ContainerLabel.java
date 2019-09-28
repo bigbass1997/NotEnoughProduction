@@ -6,12 +6,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.bigbass.nep.gui.ColorCache;
+import com.bigbass.nep.gui.NodeManager;
+import com.bigbass.nep.gui.borders.BorderSide;
+import com.bigbass.nep.gui.borders.BorderUtil;
+import com.bigbass.nep.gui.borders.BorderedActor;
 import com.bigbass.nep.gui.listeners.HoverListener;
 
-public class ContainerLabel extends CustomContainer<CustomLabel> {
+public class ContainerLabel extends CustomContainer<CustomLabel> implements BorderedActor {
 
 	private HoverListener hoverListener;
 	private Drawable hover;
+	
+	private Drawable border;
 	
 	public CustomLabel label;
 	
@@ -42,6 +48,10 @@ public class ContainerLabel extends CustomContainer<CustomLabel> {
 		if(hoverListener != null && hoverListener.isOver()){
 			hover.draw(batch, getX(), getY(), getWidth(), getHeight());
 		}
+		
+		if(border != null){
+			border.draw(batch, getX(), getY(), getWidth(), getHeight());
+		}
 	}
 	
 	@Override
@@ -51,5 +61,10 @@ public class ContainerLabel extends CustomContainer<CustomLabel> {
 	
 	public void setForegroundColor(Color color){
 		this.label.setForegroundColor(ColorCache.getForegroundColor(color));
+	}
+
+	@Override
+	public void addBorders(BorderSide[] borders) {
+		border = BorderUtil.newDrawable(NodeManager.instance().shapeDrawer, borders);
 	}
 }

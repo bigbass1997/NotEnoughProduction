@@ -17,10 +17,14 @@ import javax.json.JsonReader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.bigbass.nep.gui.Node.Tier;
 import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.recipes.RecipeManager;
+
+import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class NodeManager {
 
@@ -30,12 +34,20 @@ public class NodeManager {
 	
 	private final List<Node> nodes;
 	private final List<Node> nodesToRemove;
+
+	private final TextureRegion WHITE1X1;
+	
+	public final ShapeDrawer shapeDrawer;
 	
 	private NodeManager(Stage stage){
 		this.stage = stage;
 		
 		nodes = new ArrayList<Node>();
 		nodesToRemove = new ArrayList<Node>();
+		
+		WHITE1X1 = new TextureRegion(new Texture(Gdx.files.internal("textures/white1x1.png")));
+		
+		shapeDrawer = new ShapeDrawer(stage.getBatch(), WHITE1X1);
 	}
 	
 	/**
@@ -169,5 +181,9 @@ public class NodeManager {
 	
 	public List<Node> getNodes(){
 		return nodes;
+	}
+	
+	public void dispose(){
+		WHITE1X1.getTexture().dispose();
 	}
 }
