@@ -13,7 +13,7 @@ public class Lwjgl3Launcher {
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setTitle("NEP - NotEnoughProduction");
-        config.setWindowedMode(400, 300);
+        config.setWindowedMode(1000, 600);
         
         config.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
         return config;
