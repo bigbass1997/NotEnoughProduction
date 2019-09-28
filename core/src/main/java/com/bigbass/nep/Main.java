@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.bigbass.nep.gui.NodeTableBuilder;
 import com.bigbass.nep.panel.PanelGroup;
 import com.bigbass.nep.panel.PrimaryPanel;
-import com.kotcrab.vis.ui.VisUI;
 
 public class Main extends ApplicationAdapter {
 	
@@ -19,8 +18,6 @@ public class Main extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
-		VisUI.load();
-		
 		Gdx.input.setInputProcessor(inputMultiplexer);
 		
 		panels = new PanelGroup();
@@ -70,8 +67,6 @@ public class Main extends ApplicationAdapter {
 	@Override
 	public void dispose(){
 		panels.dispose();
-		
-		VisUI.dispose();
 		
 		NodeTableBuilder.dispose();
 	}

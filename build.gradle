@@ -5,6 +5,7 @@ buildscript {
 		google()
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 		jcenter()
+		maven { url 'https://jitpack.io' }
 	}
 	dependencies {
 		classpath "com.badlogicgames.gdx:gdx-tools:$gdxVersion"

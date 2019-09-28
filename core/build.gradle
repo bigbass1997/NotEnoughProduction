@@ -4,7 +4,7 @@ eclipse.project.name = appName + '-core'
 dependencies {
 	api "com.badlogicgames.gdx:gdx:$gdxVersion"
 	api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-	api "com.kotcrab.vis:vis-ui:$visUiVersion"
+	api "space.earlygrey:shapedrawer:2.0.1"
 	
 	api "javax.json:javax.json-api:1.1"
 	api "org.glassfish:javax.json:1.1"
