@@ -183,6 +183,23 @@ public class NodeManager {
 		return nodes;
 	}
 	
+	/**
+	 * Searches all nodes for a node at the given position (within +/- of 0.0001f).
+	 * 
+	 * @param x search x-position
+	 * @param y search y-position
+	 * @return first found node or null
+	 */
+	public Node findNodeByPosition(float x, float y){
+		for(Node node : nodes){
+			if(node.pos.epsilonEquals(x, y, 0.0001f)){
+				return node;
+			}
+		}
+		
+		return null;
+	}
+	
 	public void dispose(){
 		WHITE1X1.getTexture().dispose();
 	}

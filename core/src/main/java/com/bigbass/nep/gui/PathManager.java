@@ -17,19 +17,24 @@ import javax.json.JsonReader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.bigbass.nep.recipes.RecipeManager;
+
+import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class PathManager {
 	
 	private static PathManager instance;
 	
-	private final Stage stage;
+	private final ShapeDrawer drawer;
+	private final TextureRegion white1x1;
 	
 	private List<Path> paths;
 	
 	private PathManager(Stage stage){
-		this.stage = stage;
+		white1x1 = new TextureRegion(new Texture(Gdx.files.internal("textures/white1x1.png")));
+		drawer = new ShapeDrawer(stage.getBatch(), white1x1);
 		
 		paths = new ArrayList<Path>();
 	}
@@ -48,6 +53,14 @@ public class PathManager {
 	
 	public static void init(Stage stage){
 		instance = new PathManager(stage);
+	}
+	
+	public void render(){
+		drawer.getBatch().begin();
+		for(Path path : paths){
+			path.render(drawer);
+		}
+		drawer.getBatch().end();
 	}
 	
 	public void update(){
@@ -109,23 +122,30 @@ public class PathManager {
 			return;
 		}
 		
-		final RecipeManager rm = RecipeManager.getInst();
 		for(JsonObject jsonPath : arr.getValuesAs(JsonObject.class)){
-			/*final float x = (float) jsonPath.getJsonNumber("x").doubleValue();
-			final float y = (float) jsonPath.getJsonNumber("y").doubleValue();
-			final int overrideNum = jsonPath.getInt("override", -1);
-			Tier override = null;
-			if(overrideNum != -1){
-				override = Tier.getTierFromNum(overrideNum);
+			JsonObject start = jsonPath.getJsonObject("start");
+			final float sX = (float) start.getJsonNumber("x").doubleValue();
+			final float sY = (float) start.getJsonNumber("y").doubleValue();
+			Node sNode = null;
+			if(start.containsKey("nodeX") && start.containsKey("nodeY")){
+				final float nodeX = (float) start.getJsonNumber("nodeX").doubleValue();
+				final float nodeY = (float) start.getJsonNumber("nodeY").doubleValue();
+				
+				sNode = NodeManager.instance().findNodeByPosition(nodeX, nodeY);
 			}
-			final int hashCode = jsonPath.getInt("recipeHash", -1);
-			
-			IRecipe rec = null;
-			if(hashCode != -1){
-				rec = rm.findRecipe(hashCode);
+
+			JsonObject end = jsonPath.getJsonObject("end");
+			final float eX = (float) end.getJsonNumber("x").doubleValue();
+			final float eY = (float) end.getJsonNumber("y").doubleValue();
+			Node eNode = null;
+			if(end.containsKey("nodeX") && end.containsKey("nodeY")){
+				final float nodeX = (float) end.getJsonNumber("nodeX").doubleValue();
+				final float nodeY = (float) end.getJsonNumber("nodeY").doubleValue();
+				
+				sNode = NodeManager.instance().findNodeByPosition(nodeX, nodeY);
 			}
 			
-			addPath(new Path(x, y, rec, override));*/
+			addPath(new Path(sX, sY, sNode, eX, eY, eNode));
 		}
 	}
 	
@@ -163,5 +183,9 @@ public class PathManager {
 	
 	public List<Path> getPaths(){
 		return paths;
+	}
+	
+	public void dispose(){
+		white1x1.getTexture().dispose();
 	}
 }

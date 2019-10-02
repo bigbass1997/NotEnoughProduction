@@ -44,6 +44,7 @@ public class PrimaryPanel extends Panel {
 	private float scalar = 1f;
 	
 	private final NodeManager nodeManager;
+	private final PathManager pathManager;
 	
 	public PrimaryPanel() {
 		super();
@@ -80,6 +81,8 @@ public class PrimaryPanel extends Panel {
 		nodeManager.loadNodes("default");
 
 		PathManager.init(worldStage);
+		pathManager = PathManager.instance();
+		pathManager.loadPaths("default-paths");
 		
 		searchPane = new SearchPane(hudStage, nodeManager);
 		
@@ -129,6 +132,8 @@ public class PrimaryPanel extends Panel {
 		sr.setColor(0, 1, 0, 1);
 		sr.line(-50000, 0, 50000, 0);
 		sr.end();
+		
+		pathManager.render();
 
 		panelGroup.render();
 		
@@ -154,6 +159,7 @@ public class PrimaryPanel extends Panel {
 		
 		if(input.isKeyPressed(Keys.CONTROL_LEFT) && input.isKeyJustPressed(Keys.S)){
 			nodeManager.saveNodes("default");
+			pathManager.savePaths("default-paths");
 		}
 		
 		if(input.isKeyJustPressed(Keys.F1)){
@@ -171,6 +177,7 @@ public class PrimaryPanel extends Panel {
 		}
 		
 		nodeManager.update();
+		pathManager.update();
 		
 		searchPane.refreshRecipes();
 		
@@ -228,7 +235,9 @@ public class PrimaryPanel extends Panel {
 	}
 	
 	public void dispose(){
-		nodeManager.saveNodes("default");
+		nodeManager.saveNodes("default"); //TODO Change these saves into a single workspace save file
+		pathManager.savePaths("default-paths");
+		pathManager.dispose();
 		
 		worldStage.dispose();
 		sr.dispose();
