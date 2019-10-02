@@ -40,7 +40,7 @@ public class NodeTableBuilder {
 	private static final Color COLOR_OUTPUT_HEADER = new Color(0x595959FF);
 	private static final Color COLOR_INPUT_HEADER = new Color(0x595959FF);
 	private static final Color COLOR_OUTPUTS_BAR = new Color(0xA6A6A6FF);
-	private static final Color COLOR_INPUTS_BAR = new Color(0xD9D9D9FF);
+	private static final Color COLOR_INPUTS_BAR = new Color(0xC0C0C0FF);
 	private static final Color COLOR_COST = new Color(0xFFC000FF);
 	
 	private NodeTableBuilder(){}
