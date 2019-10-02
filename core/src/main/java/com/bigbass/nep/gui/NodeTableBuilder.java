@@ -17,7 +17,6 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.bigbass.nep.gui.Node.Tier;
 import com.bigbass.nep.gui.actors.ContainerLabel;
-import com.bigbass.nep.gui.borders.BorderSide;
 import com.bigbass.nep.gui.borders.BorderedTable;
 import com.bigbass.nep.gui.listeners.HoverListener;
 import com.bigbass.nep.recipes.Fluid;

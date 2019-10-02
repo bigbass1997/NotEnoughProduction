@@ -6,7 +6,6 @@ import javax.json.JsonObjectBuilder;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.bigbass.nep.gui.borders.BorderedTable;
 import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.skins.SkinManager;
