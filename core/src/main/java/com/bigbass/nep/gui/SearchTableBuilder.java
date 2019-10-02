@@ -111,7 +111,7 @@ public class SearchTableBuilder {
 	}
 	
 	public void reposition(){
-		root.setPosition((Gdx.graphics.getWidth() * 0.5f) - (root.getWidth() * 0.5f), Gdx.graphics.getHeight() - root.getPrefHeight());
+		root.setPosition((Gdx.graphics.getWidth() * 0.5f) - (root.getWidth() * 0.5f), Gdx.graphics.getHeight() - 80);
 	}
 	
 	// ************* left column ************* //
@@ -338,7 +338,7 @@ public class SearchTableBuilder {
 		nested.align(Align.top);
 		nested.add(catText);
 		nested.row();
-		nested.add(scrollPane).width(root.getWidth()).height(categories.getItemHeight() * 5);
+		nested.add(scrollPane).width(root.getWidth()).height(categories.getItemHeight() * 7);
 		
 		root.add(nested);
 	}
