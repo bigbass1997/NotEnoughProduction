@@ -25,6 +25,8 @@ Gradle is used as the dependency and build management software. Included in the 
 
 If you need to add a new dependency (e.g. library, framework, etc), open `core/build.gradle` and add the maven identifier for whatever you are adding. Please try to use dependencies that are available via maven, instead of jar files that are found locally.
 
+There are also built in commands for generating the needed project files for IDEA and Eclipse: `gradlew idea` and `gradlew eclipse` respectively. Your IDE may also have the ability to import Gradle projects, so check that first.
+
 ### License
 This project/program is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International, except where other licenses are included.
 
