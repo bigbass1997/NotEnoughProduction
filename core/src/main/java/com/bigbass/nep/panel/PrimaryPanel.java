@@ -67,7 +67,7 @@ public class PrimaryPanel extends Panel {
 		infoLabel.setColor(Color.MAGENTA);
 		hudStage.addActor(infoLabel);
 		
-		helpLabel = new Label("Press the F1 key to open the Recipe Search GUI\nUse the WASD keys to move around the screen\nCTRL+S or closing the program, will save current nodes", SkinManager.getSkin("fonts/droid-sans-mono.ttf", 12));
+		helpLabel = new Label("Press the F1 key to open the Recipe Search GUI\nUse the WASD keys or the middle mouse button to move around the screen\nCTRL+S or closing the program, will save current nodes", SkinManager.getSkin("fonts/droid-sans-mono.ttf", 12));
 		helpLabel.setAlignment(Align.center);
 		helpLabel.setColor(Color.BLACK);
 		hudStage.addActor(helpLabel);
@@ -210,6 +210,12 @@ public class PrimaryPanel extends Panel {
 				sr.setProjectionMatrix(cam.combined);
 				dirty = false;
 			}
+		}
+		
+		if(!searchPane.isVisible() && input.isButtonPressed(Input.Buttons.MIDDLE)){
+			cam.translate(-input.getDeltaX(), input.getDeltaY(), 0);
+			cam.update();
+			sr.setProjectionMatrix(cam.combined);
 		}
 
 		String info = String.format("FPS: %s",

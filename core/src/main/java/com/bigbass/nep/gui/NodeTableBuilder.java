@@ -1,6 +1,7 @@
 package com.bigbass.nep.gui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -397,8 +398,10 @@ public class NodeTableBuilder {
 					final float deltaX = this.getDragX() - (tex.getRegionWidth() * 0.5f);
 					final float deltaY = this.getDragY() - (tex.getRegionHeight() * 0.5f);
 					
-					root.moveBy(deltaX, deltaY);
-					node.pos.add(deltaX, deltaY);
+					if(pointer == Input.Buttons.LEFT){
+						root.moveBy(deltaX, deltaY);
+						node.pos.add(deltaX, deltaY);
+					}
 				}
 				
 			};
