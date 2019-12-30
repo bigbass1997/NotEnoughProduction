@@ -85,7 +85,7 @@ public class SearchTableBuilder {
 		leftColumn.setWidth(tableWidth * 0.5f);
 		
 		filterTextHeaderRow(leftColumn);
-		elementSearchRow(leftColumn);
+		ingredientSearchRow(leftColumn);
 		//sourceSelectRow(leftColumn);
 		searchInputVsOutputRow(leftColumn);
 		machineSearchRow(leftColumn);
@@ -134,13 +134,13 @@ public class SearchTableBuilder {
 		root.add(nested);
 	}
 	
-	private void elementSearchRow(Table root){
+	private void ingredientSearchRow(Table root){
 		root.row();
 		final Skin rootSkin = root.getSkin();
 		Table nested = new Table(rootSkin);
 		
 		ContainerLabel searchText = new ContainerLabel(SkinManager.getSkin(FONTPATH, 12));
-		searchText.label.setText("Item/Fluid Name:");
+		searchText.label.setText("Ingredient Name:");
 		searchText.setBackgroundColor(COLOR_TEXT_SEARCH);
 		searchText.setForegroundColor(COLOR_TEXT_SEARCH);
 		searchText.minWidth(root.getWidth() * 0.4f);
