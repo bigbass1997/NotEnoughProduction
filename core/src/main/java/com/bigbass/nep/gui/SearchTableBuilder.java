@@ -1,6 +1,7 @@
 package com.bigbass.nep.gui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -427,6 +428,16 @@ public class SearchTableBuilder {
 			field = new TextField("", skin);
 			setActor(field);
 			
+			this.addListener(new ClickListener(Input.Buttons.RIGHT){
+				@Override
+				public void touchUp(InputEvent event, float x, float y, int pointer, int button){
+					super.touchUp(event, x, y, pointer, button);
+					
+					// reset field when right clicked
+					field.setText("");
+					dirtyFilters = true;
+				}
+			});
 			//pad(1, 3, 1, 3);
 		}
 
