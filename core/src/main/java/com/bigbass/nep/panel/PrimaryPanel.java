@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.bigbass.nep.Globals;
 import com.bigbass.nep.Main;
 import com.bigbass.nep.gui.listeners.ScrollwheelInputAdapter;
 import com.bigbass.nep.gui.NodeManager;
@@ -56,6 +57,8 @@ public class PrimaryPanel extends Panel {
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam.position.set(0, 0, 0);
 		cam.update();
+		
+		Globals.primaryCamera = cam;
 		
 		worldView = new ScreenViewport(cam);
 		hudView = new ScreenViewport();

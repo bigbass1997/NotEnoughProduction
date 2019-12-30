@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.bigbass.nep.Globals;
 import com.bigbass.nep.gui.SearchTableBuilder.ContainerCheckBox;
 import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.recipes.IRecipe.IO;
@@ -146,7 +147,14 @@ public class SearchPane {
 			
 			Node node = null;
 			if(selectedRecipes.size() > 0){
-				node = new Node(0, 0, selectedRecipes.get(currentNodeIndex));
+				float x = 0;
+				float y = 0;
+				if(Globals.primaryCamera != null){
+					x = Globals.primaryCamera.position.x;
+					y = Globals.primaryCamera.position.y;
+				}
+				
+				node = new Node(x, y, selectedRecipes.get(currentNodeIndex));
 			}
 			
 			if(node != null){
