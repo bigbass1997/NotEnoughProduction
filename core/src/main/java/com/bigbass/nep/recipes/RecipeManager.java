@@ -1,10 +1,7 @@
 package com.bigbass.nep.recipes;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -18,7 +15,7 @@ import javax.json.JsonValue;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.github.axet.wget.WGet;
+import com.bigbass.nep.recipes.RecipeDownloader.DownloadResponse;
 
 public class RecipeManager {
 	
@@ -53,42 +50,48 @@ public class RecipeManager {
 	}
 	
 	/**
-	 * <p>Flushes any currently loaded recipes and attempts to load the specified version.</p>
+	 * <p>Calls {@link #loadRecipes(String, boolean)} by passing {@code false}.</p>
 	 * 
-	 * <p>If the version is not found locally, it will attempt to download it. If the version does
-	 * not exist on the remote server, a RecipeError will be thrown.</p>
-	 * 
-	 * @param version
+	 * @param version recipe version to be loaded
 	 * @return
 	 */
 	public RecipeError loadRecipes(String version){
-		if(version == null || version.trim().isEmpty()){
+		return loadRecipes(version, false);
+	}
+	
+	/**
+	 * <p>Flushes any currently loaded recipes and attempts to load the specified version.</p>
+	 * 
+	 * <p>If the version is not found locally and {@code localOnly == false}, it will attempt to download the
+	 * respective json file. If the version does not exist on the remote server, a RecipeError will be thrown.</p>
+	 * 
+	 * @param version recipe version to be loaded
+	 * @param localOnly true if this version is only found locally
+	 * @return
+	 */
+	public RecipeError loadRecipes(String version, boolean localOnly){
+		version = version.trim().replace(".json", "");
+		
+		if(version == null || version.isEmpty()){
 			return new RecipeError("emptyVersion", "The version provided was either null or empty.");
 		}
 		
-		version = version.trim().replace(".json", "");
-		FileHandle handle = Gdx.files.local("cache/" + version + ".json");
-		
-		// File Checking and Retrieval \\
-		
-		if(!handle.exists()){
-			try {
-				URL url = new URL("http://libgdxjam.com/recex/" + version + ".json");
-				File target = handle.file();
-				
-				WGet w = new WGet(url, target);
-				
-				w.download(); // blocking! attempts to download file from the url to the target File.
-			} catch (MalformedURLException e) {
-				return new RecipeError("malformed", e.getMessage());
-			} catch (RuntimeException e) {
-				e.printStackTrace();
-				return new RecipeError("runtime", e.getMessage());
+		if(!localOnly){
+			final RecipeDownloader rd = new RecipeDownloader();
+			final DownloadResponse res = rd.downloadRecipeFile(version);
+			if(res != DownloadResponse.OK){
+				return new RecipeError("versionNotFound", "Either the version provided does not exist remotely, or the download and/or checksum failed. " + res);
 			}
 		}
 		
+		final FileHandle handle = Gdx.files.local("cache/" + version + ".json");
+		
 		if(!handle.exists()){
-			return new RecipeError("fileNotFound", "After attempting to download the version, the file still cannot be found.");
+			if(localOnly){
+				return new RecipeError("versionNotFound", "The version provided was not found locally.");
+			} else {
+				return new RecipeError("versionNotFound", "The version provided was not found locally nor remotely.");
+			}
 		}
 		
 		// Recipe Parsing \\
@@ -321,7 +324,7 @@ public class RecipeManager {
 		
 		@Override
 		public String toString(){
-			return code;
+			return code + ": " + description;
 		}
 	}
 }

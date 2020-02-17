@@ -51,7 +51,7 @@ public class PrimaryPanel extends Panel {
 		super();
 
 		System.out.println("Loading recipes...");
-		RecipeError err = RecipeManager.getInst().loadRecipes("v2.0.7.5-gt-shaped-shapeless");
+		RecipeError err = RecipeManager.getInst().loadRecipes("v2.0.8.4-x0.0.2");
 		System.out.println("Done " + err);
 		
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

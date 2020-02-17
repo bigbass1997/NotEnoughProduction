@@ -12,4 +12,9 @@ dependencies {
 	api "com.google.code.gson:gson:2.7"
 	
 	api "com.github.axet:wget:1.4.9"
+	
+	api "com.joyent.util:fast-md5:2.7.1"
+	
+	api "commons-io:commons-io:2.6"
+	api "commons-codec:commons-codec:1.14"
 }
