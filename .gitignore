@@ -53,7 +53,6 @@ tmp/
 
 ## NetBeans
 **/nbproject/private/
-build/
 nbbuild/
 dist/
 nbdist/
@@ -67,3 +66,4 @@ nb-configuration.xml
 assets/cache/
 assets/screenshots/
 assets/saves/
+run.bat
