@@ -151,8 +151,18 @@ public class NodeManager {
 		JsonObjectBuilder root = Json.createObjectBuilder();
 		
 		JsonArrayBuilder builder = Json.createArrayBuilder();
+		
+		boolean errorFound = false;
 		for(Node node : nodes){
 			builder.add(node.toJson());
+			
+			if(node.getRecipe() == null){
+				errorFound = true;
+			}
+		}
+		if(errorFound){
+			filename = filename + "-error";
+			System.out.println("WARNING: One or more nodes had no valid recipe, this is likely a result of a corrupted or nonexistent recipe atlas. To protect your data, a different filename will be used.");
 		}
 		
 		root.add("nodes", builder.build());
