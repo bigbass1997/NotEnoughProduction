@@ -16,6 +16,9 @@ import com.bigbass.nep.recipes.RecipeDownloader.DownloadResponse.Code;
 import com.github.axet.wget.WGet;
 import com.twmacinta.util.MD5;
 
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+
 public class RecipeDownloader {
 	
 	private final String MIRROR_URL = "http://libgdxjam.com/recex/";
@@ -31,8 +34,16 @@ public class RecipeDownloader {
 		DownloadResponse zipRes = downloadFilePair(zipName);
 		if(zipRes == DownloadResponse.OK){
 			final FileHandle handleZip = Gdx.files.local(CACHE_PATH + zipName);
+			final FileHandle jsonDestination = Gdx.files.local(CACHE_PATH);
 			
-			//TODO DECOMPRESS ZIP
+			ZipFile zipFile = new ZipFile(handleZip.file());
+			try {
+				zipFile.extractFile(jsonName, jsonDestination.file().getPath());
+			} catch (ZipException e) {
+				e.printStackTrace();
+				jsonDestination.delete();
+				return new DownloadResponse(Code.MALFORMED, "Extracting json from zip has failed.");
+			}
 		}
 		
 		// if zip download and decompression worked, this call will not download the json file, but will verify checksum
@@ -128,6 +139,7 @@ public class RecipeDownloader {
 	 */
 	private DownloadResponse downloadFile(String filename){
 		try {
+			System.out.println("Attempting to download: " + filename);
 			URL url = new URL(MIRROR_URL + filename);
 			File target = Gdx.files.local(CACHE_PATH + filename).file();
 			

@@ -17,4 +17,6 @@ dependencies {
 	
 	api "commons-io:commons-io:2.6"
 	api "commons-codec:commons-codec:1.14"
+	
+	api "net.lingala.zip4j:zip4j:2.3.1"
 }
