@@ -340,8 +340,12 @@ public class NodeTableBuilder {
 	 * Function is called in Main.dispose()
 	 */
 	public static void dispose(){
-		MOVE_TEXTURE.getTexture().dispose();
-		REMOVE_TEXTURE.getTexture().dispose();
+		if (MOVE_TEXTURE != null) {
+			MOVE_TEXTURE.getTexture().dispose();
+		}
+		if (REMOVE_TEXTURE != null) {
+			REMOVE_TEXTURE.getTexture().dispose();
+		}
 	}
 	
 	public static class RemoveNodeImage extends Image {
