@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -57,6 +59,56 @@ public class RecipeManager {
 	 */
 	public RecipeError loadRecipes(String version){
 		return loadRecipes(version, false);
+	}
+
+	/**
+	 * <p>Calls {@link #loadRecipes(String, boolean)} by passing {@code false}.</p>
+	 *
+	 * @param version recipe version to be loaded
+	 * @return
+	 */
+	public Thread loadRecipesAsync(String version){
+		return loadRecipesAsync(version, (RecipeError err) -> {return null;}, () -> {return null;});
+	}
+
+	/**
+	 * <p>Calls {@link #loadRecipes(String, boolean)} by passing {@code false}.</p>
+	 *
+	 * @param version recipe version to be loaded
+	 * @param errorHandler handler for loader errors
+	 * @return
+	 */
+	public Thread loadRecipesAsync(String version, Function<RecipeError, Void> errorHandler){
+		return loadRecipesAsync(version, errorHandler, () -> {return null;});
+	}
+
+	/**
+	 * <p>Calls {@link #loadRecipes(String, boolean)} by passing {@code false}.</p>
+	 *
+	 * @param version recipe version to be loaded
+	 * @param error_handler handler for loading errors
+	 * @param callback function to call after load is complete
+	 * @return
+	 */
+	public Thread loadRecipesAsync(String version, Function<RecipeError, Void> errorHandler, Callable<Void> callback){
+		Thread loaderThread = new Thread() {
+			public void run() {
+				errorHandler.apply(loadRecipes(version));
+				try {
+					callback.call();
+				} catch (Exception e) {
+					System.out.println(
+							String.format(
+									"got exception in async recipes loader:\n%s",
+									e
+							)
+					);
+				}
+				return;
+			}
+		};
+		loaderThread.start();
+		return loaderThread;
 	}
 	
 	/**

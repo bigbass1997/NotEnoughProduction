@@ -44,9 +44,12 @@ public class PrimaryPanel extends Panel {
 	
 	private Label infoLabel;
 	private Label helpLabel;
-	
+
+	private Thread loaderThread;
+
 	private float scalar = 1f;
-	
+	private boolean loadCompete = false;
+
 	private final NodeManager nodeManager;
 	private final PathManager pathManager;
 
@@ -57,29 +60,38 @@ public class PrimaryPanel extends Panel {
 		super();
 
 		System.out.println("Loading recipes...");
-		RecipeError err = RecipeManager.getInst().loadRecipes("v2.0.8.4-x0.0.3");
-		System.out.println("Done " + err);
-		
+		loaderThread = RecipeManager.getInst().loadRecipesAsync(
+				"v2.0.8.4-x0.0.3",
+				(RecipeError err) -> {
+					System.out.println("Done " + err);
+					return null;
+				},
+				() -> {
+					this.loadCompete = true;
+					return null;
+				}
+		);
+
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam.position.set(0, 0, 0);
 		cam.update();
-		
+
 		Globals.primaryCamera = cam;
-		
+
 		worldView = new ScreenViewport(cam);
 		hudView = new ScreenViewport();
-		
+
 		worldStage = new Stage(worldView);
-		
+
 		hudStage = new Stage(hudView);
 		infoLabel = new Label("", SkinManager.getSkin("fonts/droid-sans-mono.ttf", 10));
 		infoLabel.setColor(Color.MAGENTA);
 		hudStage.addActor(infoLabel);
-		
+
 		sr = new ShapeRenderer(50000);
 		sr.setAutoShapeType(true);
 		sr.setProjectionMatrix(cam.combined);
-		
+
 		NodeManager.init(worldStage);
 		nodeManager = NodeManager.instance();
 		nodeManager.loadNodes("default");
@@ -87,7 +99,7 @@ public class PrimaryPanel extends Panel {
 		PathManager.init(worldStage);
 		pathManager = PathManager.instance();
 		pathManager.loadPaths("default-paths");
-		
+
 		searchPane = new SearchPane(hudStage, nodeManager);
 
 		cam.translate(-cam.viewportWidth * 0.2f, -cam.viewportHeight * 0.2f, 0);
@@ -99,7 +111,7 @@ public class PrimaryPanel extends Panel {
 				if(searchPane.isVisible()){
 					return false;
 				}
-				
+
 				if(amount == 1){
 					changeCameraViewport(1);
 				} else if(amount == -1){
@@ -109,7 +121,7 @@ public class PrimaryPanel extends Panel {
 			}
 		});
 		changeCameraViewport(0);
-		
+
 		Main.inputMultiplexer.addProcessor(worldStage);
 		Main.inputMultiplexer.addProcessor(hudStage);
 
@@ -316,13 +328,21 @@ public class PrimaryPanel extends Panel {
 	}
 	
 	public void update(float delta) {
+		if (loaderThread.isAlive()) {
+			try {
+				loaderThread.join(10);
+			} catch (InterruptedException e) {
+				System.out.println(String.format("Got exception while loading:\n%s", e));
+			}
+		}
+
 		Input input = Gdx.input;
 
 		this.keyBindings.act();
 		
 		nodeManager.update();
 		pathManager.update();
-		
+
 		searchPane.refreshRecipes();
 		
 		worldStage.act(delta);
@@ -330,31 +350,6 @@ public class PrimaryPanel extends Panel {
 		panelGroup.update(delta);
 		
 		hudStage.act(delta);
-		
-//		if(!searchPane.isVisible() && !keyBindingPane.isVisible() && !input.isKeyPressed(Keys.CONTROL_LEFT)){
-//			boolean dirty = false;
-//			if(input.isKeyPressed(Keys.W)){
-//				cam.translate(0, CAM_SPEED * delta, 0);
-//				dirty = true;
-//			}
-//			if(input.isKeyPressed(Keys.S)){
-//				cam.translate(0, -CAM_SPEED * delta, 0);
-//				dirty = true;
-//			}
-//			if(input.isKeyPressed(Keys.A)){
-//				cam.translate(-CAM_SPEED * delta, 0, 0);
-//				dirty = true;
-//			}
-//			if(input.isKeyPressed(Keys.D)){
-//				cam.translate(CAM_SPEED * delta, 0, 0);
-//				dirty = true;
-//			}
-//			if(dirty){
-//				cam.update();
-//				sr.setProjectionMatrix(cam.combined);
-//				dirty = false;
-//			}
-//		}
 		
 		if(!searchPane.isVisible() && !keyBindingPane.isVisible() && input.isButtonPressed(Input.Buttons.MIDDLE)){
 			cam.translate(-input.getDeltaX(), input.getDeltaY(), 0);
@@ -365,6 +360,10 @@ public class PrimaryPanel extends Panel {
 		String info = String.format("FPS: %s",
 				Gdx.graphics.getFramesPerSecond()
 			);
+		if (!this.loadCompete) {
+			info += ", Loading...";
+		}
+		
 		helpLabel.setText(
 				String.format(
 						"Press the %s key to open the Recipe Search GUI\nPress the %s key to open hotkey list\nUse the %s, %s, %s, %s keys or the middle mouse button to move around the screen\n%s or closing the program, will save current nodes",
