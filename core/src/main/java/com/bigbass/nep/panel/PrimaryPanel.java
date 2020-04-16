@@ -25,6 +25,7 @@ import com.bigbass.nep.util.KeyBinding;
 import com.bigbass.nep.recipes.RecipeManager;
 import com.bigbass.nep.recipes.RecipeManager.RecipeError;
 import com.bigbass.nep.skins.SkinManager;
+import com.bigbass.nep.util.Singleton;
 
 public class PrimaryPanel extends Panel {
 
@@ -125,9 +126,8 @@ public class PrimaryPanel extends Panel {
 		Main.inputMultiplexer.addProcessor(worldStage);
 		Main.inputMultiplexer.addProcessor(hudStage);
 
-		this.keyBindings = KeyBindingManager.getInstance();
+		this.keyBindings = Singleton.getInstance(KeyBindingManager.class);
 		this.keyBindingPane = new KeyBindingPane(this.hudStage, this.keyBindings);
-
 
 		this.keyBindings.addBinding(
 				"search",
