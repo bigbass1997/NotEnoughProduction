@@ -27,9 +27,6 @@ import com.bigbass.nep.recipes.RecipeManager;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class NodeManager {
-
-	private static NodeManager instance;
-	
 	private final Stage stage;
 	
 	private final List<Node> nodes;
@@ -39,7 +36,7 @@ public class NodeManager {
 	
 	public final ShapeDrawer shapeDrawer;
 	
-	private NodeManager(Stage stage){
+	public NodeManager(Stage stage){
 		this.stage = stage;
 		
 		nodes = new ArrayList<Node>();
@@ -58,14 +55,7 @@ public class NodeManager {
 	 * 
 	 * @return
 	 */
-	public static NodeManager instance(){
-		return instance;
-	}
-	
-	public static void init(Stage stage){
-		instance = new NodeManager(stage);
-	}
-	
+
 	public void update(){
 		for(Node node : nodes){
 			if(node.shouldRemove()){

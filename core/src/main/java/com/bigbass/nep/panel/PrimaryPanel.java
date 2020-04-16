@@ -93,8 +93,9 @@ public class PrimaryPanel extends Panel {
 		sr.setAutoShapeType(true);
 		sr.setProjectionMatrix(cam.combined);
 
-		NodeManager.init(worldStage);
-		nodeManager = NodeManager.instance();
+//		NodeManager.init(worldStage);
+		nodeManager = Singleton.getInstance(NodeManager.class, worldStage);
+//		nodeManager = NodeManager.instance();
 		nodeManager.loadNodes("default");
 
 		PathManager.init(worldStage);
@@ -129,6 +130,17 @@ public class PrimaryPanel extends Panel {
 		this.keyBindings = Singleton.getInstance(KeyBindingManager.class);
 		this.keyBindingPane = new KeyBindingPane(this.hudStage, this.keyBindings);
 
+		this.initializeKeyBindings();
+
+		helpLabel = new Label("", SkinManager.getSkin("fonts/droid-sans-mono.ttf", 12));
+		helpLabel.setAlignment(Align.bottom);
+		helpLabel.setColor(Color.BLACK);
+		hudStage.addActor(helpLabel);
+
+		this.keyBindingPane.rebuild();
+	}
+
+	private void initializeKeyBindings() {
 		this.keyBindings.addBinding(
 				"search",
 				new KeyBinding()
@@ -208,13 +220,6 @@ public class PrimaryPanel extends Panel {
 						)
 						.setHold(true)
 		);
-
-		helpLabel = new Label("", SkinManager.getSkin("fonts/droid-sans-mono.ttf", 12));
-		helpLabel.setAlignment(Align.bottom);
-		helpLabel.setColor(Color.BLACK);
-		hudStage.addActor(helpLabel);
-
-		this.keyBindingPane.rebuild();
 	}
 
 	private Void toggleSearchPanel() {

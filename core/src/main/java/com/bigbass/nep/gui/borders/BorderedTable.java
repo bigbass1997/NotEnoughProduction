@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.bigbass.nep.gui.NodeManager;
+import com.bigbass.nep.util.Singleton;
 
 public class BorderedTable extends Table implements BorderedActor {
 
@@ -41,6 +42,6 @@ public class BorderedTable extends Table implements BorderedActor {
 
 	@Override
 	public void addBorders(BorderSide[] borders) {
-		border = BorderUtil.newDrawable(NodeManager.instance().shapeDrawer, borders);
+		border = BorderUtil.newDrawable(Singleton.getInstance(NodeManager.class).shapeDrawer, borders);
 	}
 }

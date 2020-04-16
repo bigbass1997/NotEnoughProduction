@@ -21,6 +21,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
+import com.bigbass.nep.util.Singleton;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class PathManager {
@@ -131,7 +132,7 @@ public class PathManager {
 				final float nodeX = (float) start.getJsonNumber("nodeX").doubleValue();
 				final float nodeY = (float) start.getJsonNumber("nodeY").doubleValue();
 				
-				sNode = NodeManager.instance().findNodeByPosition(nodeX, nodeY);
+				sNode = Singleton.getInstance(NodeManager.class).findNodeByPosition(nodeX, nodeY);
 			}
 
 			JsonObject end = jsonPath.getJsonObject("end");
@@ -142,7 +143,7 @@ public class PathManager {
 				final float nodeX = (float) end.getJsonNumber("nodeX").doubleValue();
 				final float nodeY = (float) end.getJsonNumber("nodeY").doubleValue();
 				
-				sNode = NodeManager.instance().findNodeByPosition(nodeX, nodeY);
+				sNode = Singleton.getInstance(NodeManager.class).findNodeByPosition(nodeX, nodeY);
 			}
 			
 			addPath(new Path(sX, sY, sNode, eX, eY, eNode));
