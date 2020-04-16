@@ -4,20 +4,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
 import com.bigbass.nep.util.KeyBinding;
+import com.bigbass.nep.util.Singleton;
 
-public class KeyBindingManager {
-    private static KeyBindingManager instance;  // Singletone
-    public static KeyBindingManager getInstance(){
-        if(instance == null) {
-            KeyBindingManager.instance = new KeyBindingManager();
-        }
-        return instance;
-    }
-
+public class KeyBindingManager extends Singleton {
     private HashMap<String, KeyBinding> bindings;
 
-    private KeyBindingManager() {
-        this.bindings = new HashMap<String, KeyBinding>();
+    public KeyBindingManager() {
+        this.bindings = new HashMap<>();
     }
 
     public void addBinding(String name, KeyBinding binding) {

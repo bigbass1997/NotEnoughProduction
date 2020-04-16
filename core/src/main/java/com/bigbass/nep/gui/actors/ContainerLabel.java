@@ -11,6 +11,7 @@ import com.bigbass.nep.gui.borders.BorderSide;
 import com.bigbass.nep.gui.borders.BorderUtil;
 import com.bigbass.nep.gui.borders.BorderedActor;
 import com.bigbass.nep.gui.listeners.HoverListener;
+import com.bigbass.nep.util.Singleton;
 
 public class ContainerLabel extends CustomContainer<CustomLabel> implements BorderedActor {
 
@@ -65,6 +66,6 @@ public class ContainerLabel extends CustomContainer<CustomLabel> implements Bord
 
 	@Override
 	public void addBorders(BorderSide[] borders) {
-		border = BorderUtil.newDrawable(NodeManager.instance().shapeDrawer, borders);
+		border = BorderUtil.newDrawable(Singleton.getInstance(NodeManager.class).shapeDrawer, borders);
 	}
 }

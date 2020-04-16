@@ -3,9 +3,6 @@ package com.bigbass.nep.gui;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
-import com.bigbass.nep.gui.KeyBindingManager;
-import com.bigbass.nep.gui.KeyBindingTableBuilder;
-
 public class KeyBindingPane {
 
     private KeyBindingManager bindingManager;

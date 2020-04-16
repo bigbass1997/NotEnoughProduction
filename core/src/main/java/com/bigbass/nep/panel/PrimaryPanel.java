@@ -25,6 +25,7 @@ import com.bigbass.nep.util.KeyBinding;
 import com.bigbass.nep.recipes.RecipeManager;
 import com.bigbass.nep.recipes.RecipeManager.RecipeError;
 import com.bigbass.nep.skins.SkinManager;
+import com.bigbass.nep.util.Singleton;
 
 public class PrimaryPanel extends Panel {
 
@@ -92,12 +93,10 @@ public class PrimaryPanel extends Panel {
 		sr.setAutoShapeType(true);
 		sr.setProjectionMatrix(cam.combined);
 
-		NodeManager.init(worldStage);
-		nodeManager = NodeManager.instance();
+		nodeManager = Singleton.getInstance(NodeManager.class, worldStage);
 		nodeManager.loadNodes("default");
 
-		PathManager.init(worldStage);
-		pathManager = PathManager.instance();
+		pathManager = Singleton.getInstance(PathManager.class, worldStage);
 		pathManager.loadPaths("default-paths");
 
 		searchPane = new SearchPane(hudStage, nodeManager);
@@ -125,10 +124,20 @@ public class PrimaryPanel extends Panel {
 		Main.inputMultiplexer.addProcessor(worldStage);
 		Main.inputMultiplexer.addProcessor(hudStage);
 
-		this.keyBindings = KeyBindingManager.getInstance();
+		this.keyBindings = Singleton.getInstance(KeyBindingManager.class);
 		this.keyBindingPane = new KeyBindingPane(this.hudStage, this.keyBindings);
 
+		this.initializeKeyBindings();
 
+		helpLabel = new Label("", SkinManager.getSkin("fonts/droid-sans-mono.ttf", 12));
+		helpLabel.setAlignment(Align.bottom);
+		helpLabel.setColor(Color.BLACK);
+		hudStage.addActor(helpLabel);
+
+		this.keyBindingPane.rebuild();
+	}
+
+	private void initializeKeyBindings() {
 		this.keyBindings.addBinding(
 				"search",
 				new KeyBinding()
@@ -208,13 +217,6 @@ public class PrimaryPanel extends Panel {
 						)
 						.setHold(true)
 		);
-
-		helpLabel = new Label("", SkinManager.getSkin("fonts/droid-sans-mono.ttf", 12));
-		helpLabel.setAlignment(Align.bottom);
-		helpLabel.setColor(Color.BLACK);
-		hudStage.addActor(helpLabel);
-
-		this.keyBindingPane.rebuild();
 	}
 
 	private Void toggleSearchPanel() {

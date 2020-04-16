@@ -21,40 +21,22 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
+import com.bigbass.nep.util.Singleton;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class PathManager {
-	
-	private static PathManager instance;
-	
 	private final ShapeDrawer drawer;
 	private final TextureRegion white1x1;
 	
 	private List<Path> paths;
 	
-	private PathManager(Stage stage){
+	public PathManager(Stage stage){
 		white1x1 = new TextureRegion(new Texture(Gdx.files.internal("textures/white1x1.png")));
 		drawer = new ShapeDrawer(stage.getBatch(), white1x1);
 		
 		paths = new ArrayList<Path>();
 	}
-	
-	/**
-	 * <p>Retrieves the NodeManager singleton instance.</p>
-	 * 
-	 * <p><b>WARNING:</b> You must run NodeManager.init() before calling this, or else
-	 * this will return null!</p>
-	 * 
-	 * @return
-	 */
-	public static PathManager instance(){
-		return instance;
-	}
-	
-	public static void init(Stage stage){
-		instance = new PathManager(stage);
-	}
-	
+
 	public void render(){
 		drawer.getBatch().begin();
 		for(Path path : paths){
@@ -131,7 +113,7 @@ public class PathManager {
 				final float nodeX = (float) start.getJsonNumber("nodeX").doubleValue();
 				final float nodeY = (float) start.getJsonNumber("nodeY").doubleValue();
 				
-				sNode = NodeManager.instance().findNodeByPosition(nodeX, nodeY);
+				sNode = Singleton.getInstance(NodeManager.class).findNodeByPosition(nodeX, nodeY);
 			}
 
 			JsonObject end = jsonPath.getJsonObject("end");
@@ -142,7 +124,7 @@ public class PathManager {
 				final float nodeX = (float) end.getJsonNumber("nodeX").doubleValue();
 				final float nodeY = (float) end.getJsonNumber("nodeY").doubleValue();
 				
-				sNode = NodeManager.instance().findNodeByPosition(nodeX, nodeY);
+				sNode = Singleton.getInstance(NodeManager.class).findNodeByPosition(nodeX, nodeY);
 			}
 			
 			addPath(new Path(sX, sY, sNode, eX, eY, eNode));
