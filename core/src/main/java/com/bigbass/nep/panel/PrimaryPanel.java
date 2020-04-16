@@ -19,6 +19,9 @@ import com.bigbass.nep.gui.listeners.ScrollwheelInputAdapter;
 import com.bigbass.nep.gui.NodeManager;
 import com.bigbass.nep.gui.PathManager;
 import com.bigbass.nep.gui.SearchPane;
+import com.bigbass.nep.gui.KeyBindingPane;
+import com.bigbass.nep.gui.KeyBindingManager;
+import com.bigbass.nep.util.KeyBinding;
 import com.bigbass.nep.recipes.RecipeManager;
 import com.bigbass.nep.recipes.RecipeManager.RecipeError;
 import com.bigbass.nep.skins.SkinManager;
@@ -46,7 +49,10 @@ public class PrimaryPanel extends Panel {
 	
 	private final NodeManager nodeManager;
 	private final PathManager pathManager;
-	
+
+	private KeyBindingManager keyBindings;
+	private KeyBindingPane keyBindingPane;
+
 	public PrimaryPanel() {
 		super();
 
@@ -70,11 +76,6 @@ public class PrimaryPanel extends Panel {
 		infoLabel.setColor(Color.MAGENTA);
 		hudStage.addActor(infoLabel);
 		
-		helpLabel = new Label("Press the F1 key to open the Recipe Search GUI\nUse the WASD keys or the middle mouse button to move around the screen\nCTRL+S or closing the program, will save current nodes", SkinManager.getSkin("fonts/droid-sans-mono.ttf", 12));
-		helpLabel.setAlignment(Align.center);
-		helpLabel.setColor(Color.BLACK);
-		hudStage.addActor(helpLabel);
-		
 		sr = new ShapeRenderer(50000);
 		sr.setAutoShapeType(true);
 		sr.setProjectionMatrix(cam.combined);
@@ -88,7 +89,7 @@ public class PrimaryPanel extends Panel {
 		pathManager.loadPaths("default-paths");
 		
 		searchPane = new SearchPane(hudStage, nodeManager);
-		
+
 		cam.translate(-cam.viewportWidth * 0.2f, -cam.viewportHeight * 0.2f, 0);
 		cam.update();
 
@@ -111,8 +112,132 @@ public class PrimaryPanel extends Panel {
 		
 		Main.inputMultiplexer.addProcessor(worldStage);
 		Main.inputMultiplexer.addProcessor(hudStage);
+
+		this.keyBindings = KeyBindingManager.getInstance();
+		this.keyBindingPane = new KeyBindingPane(this.hudStage, this.keyBindings);
+
+
+		this.keyBindings.addBinding(
+				"search",
+				new KeyBinding()
+						.setHelp("open search pane")
+						.setCallback(() -> this.toggleSearchPanel())
+						.setKeys(
+								Keys.F,
+								Keys.CONTROL_LEFT
+						)
+		);
+		this.keyBindings.addBinding(
+				"bindings",
+				new KeyBinding()
+						.setHelp("open bindings pane")
+						.setCallback(() -> this.toggleKeyBindingPanel())
+						.setKeys(
+								Keys.CONTROL_LEFT,
+								Keys.B
+						)
+		);
+		this.keyBindings.addBinding(
+				"save",
+				new KeyBinding()
+						.setHelp("save nodes and paths")
+						.setCallback(() -> this.save())
+						.setKeys(
+								Keys.CONTROL_LEFT,
+								Keys.S
+						)
+		);
+		this.keyBindings.addBinding(
+				"unfocus",
+				new KeyBinding()
+						.setHelp("unfocus all windows")
+						.setCallback(() -> this.unfocusAll())
+						.setKeys(
+								Keys.ESCAPE
+						)
+		);
+		this.keyBindings.addBinding(
+				"up",
+				new KeyBinding()
+						.setHelp("move up")
+						.setCallback(() -> this.move(MoveDirection.UP))
+						.setKeys(
+								Keys.W
+						)
+						.setHold(true)
+		);
+		this.keyBindings.addBinding(
+				"down",
+				new KeyBinding()
+						.setHelp("move down")
+						.setCallback(() -> this.move(MoveDirection.DOWN))
+						.setKeys(
+								Keys.S
+						)
+						.setHold(true)
+		);
+		this.keyBindings.addBinding(
+				"left",
+				new KeyBinding()
+						.setHelp("move left")
+						.setCallback(() -> this.move(MoveDirection.LEFT))
+						.setKeys(
+								Keys.A
+						)
+						.setHold(true)
+		);
+		this.keyBindings.addBinding(
+				"right",
+				new KeyBinding()
+						.setHelp("move right")
+						.setCallback(() -> this.move(MoveDirection.RIGHT))
+						.setKeys(
+								Keys.D
+						)
+						.setHold(true)
+		);
+
+		helpLabel = new Label("", SkinManager.getSkin("fonts/droid-sans-mono.ttf", 12));
+		helpLabel.setAlignment(Align.bottom);
+		helpLabel.setColor(Color.BLACK);
+		hudStage.addActor(helpLabel);
+
+		this.keyBindingPane.rebuild();
 	}
-	
+
+	private Void toggleSearchPanel() {
+		searchPane.setVisible(!searchPane.isVisible());
+
+		if(!searchPane.isVisible()){
+			Main.inputMultiplexer.addProcessor(worldStage);
+		} else {
+			Main.inputMultiplexer.removeProcessor(worldStage);
+		}
+		return null;
+	}
+
+	private Void toggleKeyBindingPanel() {
+		this.keyBindingPane.setVisible(!this.keyBindingPane.isVisible());
+
+		if(!this.keyBindingPane.isVisible()){
+			Main.inputMultiplexer.addProcessor(worldStage);
+		} else {
+			Main.inputMultiplexer.removeProcessor(worldStage);
+		}
+		return null;
+	}
+
+	private Void save() {
+		this.nodeManager.saveNodes("default");
+		this.pathManager.savePaths("default-paths");
+		return null;
+	}
+
+	private Void unfocusAll() {
+		this.hudStage.unfocusAll();
+		return null;
+	}
+
 	public void render() {
 		sr.begin(ShapeType.Filled);
 		
@@ -143,7 +268,9 @@ public class PrimaryPanel extends Panel {
 		//worldStage.getViewport().apply();
 		worldStage.draw();
 		
-		if(searchPane.isVisible()){
+		if(
+				searchPane.isVisible() || keyBindingPane.isVisible()
+		){
 			Gdx.gl.glEnable(GL20.GL_BLEND);
 			Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 			
@@ -156,28 +283,42 @@ public class PrimaryPanel extends Panel {
 		//hudStage.getViewport().apply();
 		hudStage.draw();
 	}
+
+	private enum MoveDirection {UP, DOWN, LEFT, RIGHT};
+
+	private Void move(MoveDirection direction) {
+		boolean dirty = false;
+		float delta = Gdx.graphics.getDeltaTime();
+		switch (direction) {
+			case UP:
+				cam.translate(0, CAM_SPEED * delta, 0);
+				dirty = true;
+				break;
+			case DOWN:
+				cam.translate(0, -CAM_SPEED * delta, 0);
+				dirty = true;
+				break;
+			case LEFT:
+				cam.translate(-CAM_SPEED * delta, 0, 0);
+				dirty = true;
+				break;
+			case RIGHT:
+				cam.translate(CAM_SPEED * delta, 0, 0);
+				dirty = true;
+				break;
+		}
+		if(dirty){
+			cam.update();
+			sr.setProjectionMatrix(cam.combined);
+			dirty = false;
+		}
+		return null;
+	}
 	
 	public void update(float delta) {
 		Input input = Gdx.input;
-		
-		if(input.isKeyPressed(Keys.CONTROL_LEFT) && input.isKeyJustPressed(Keys.S)){
-			nodeManager.saveNodes("default");
-			pathManager.savePaths("default-paths");
-		}
-		
-		if(input.isKeyJustPressed(Keys.F1)){
-			searchPane.setVisible(!searchPane.isVisible());
-			
-			if(!searchPane.isVisible()){
-				Main.inputMultiplexer.addProcessor(worldStage);
-			} else {
-				Main.inputMultiplexer.removeProcessor(worldStage);
-			}
-		}
-		
-		if(input.isKeyJustPressed(Keys.ESCAPE)){
-			hudStage.unfocusAll();
-		}
+
+		this.keyBindings.act();
 		
 		nodeManager.update();
 		pathManager.update();
@@ -190,32 +331,32 @@ public class PrimaryPanel extends Panel {
 		
 		hudStage.act(delta);
 		
-		if(!searchPane.isVisible() && !input.isKeyPressed(Keys.CONTROL_LEFT)){
-			boolean dirty = false;
-			if(input.isKeyPressed(Keys.W)){
-				cam.translate(0, CAM_SPEED * delta, 0);
-				dirty = true;
-			}
-			if(input.isKeyPressed(Keys.S)){
-				cam.translate(0, -CAM_SPEED * delta, 0);
-				dirty = true;
-			}
-			if(input.isKeyPressed(Keys.A)){
-				cam.translate(-CAM_SPEED * delta, 0, 0);
-				dirty = true;
-			}
-			if(input.isKeyPressed(Keys.D)){
-				cam.translate(CAM_SPEED * delta, 0, 0);
-				dirty = true;
-			}
-			if(dirty){
-				cam.update();
-				sr.setProjectionMatrix(cam.combined);
-				dirty = false;
-			}
-		}
+//		if(!searchPane.isVisible() && !keyBindingPane.isVisible() && !input.isKeyPressed(Keys.CONTROL_LEFT)){
+//			boolean dirty = false;
+//			if(input.isKeyPressed(Keys.W)){
+//				cam.translate(0, CAM_SPEED * delta, 0);
+//				dirty = true;
+//			}
+//			if(input.isKeyPressed(Keys.S)){
+//				cam.translate(0, -CAM_SPEED * delta, 0);
+//				dirty = true;
+//			}
+//			if(input.isKeyPressed(Keys.A)){
+//				cam.translate(-CAM_SPEED * delta, 0, 0);
+//				dirty = true;
+//			}
+//			if(input.isKeyPressed(Keys.D)){
+//				cam.translate(CAM_SPEED * delta, 0, 0);
+//				dirty = true;
+//			}
+//			if(dirty){
+//				cam.update();
+//				sr.setProjectionMatrix(cam.combined);
+//				dirty = false;
+//			}
+//		}
 		
-		if(!searchPane.isVisible() && input.isButtonPressed(Input.Buttons.MIDDLE)){
+		if(!searchPane.isVisible() && !keyBindingPane.isVisible() && input.isButtonPressed(Input.Buttons.MIDDLE)){
 			cam.translate(-input.getDeltaX(), input.getDeltaY(), 0);
 			cam.update();
 			sr.setProjectionMatrix(cam.combined);
@@ -224,11 +365,22 @@ public class PrimaryPanel extends Panel {
 		String info = String.format("FPS: %s",
 				Gdx.graphics.getFramesPerSecond()
 			);
-		
+		helpLabel.setText(
+				String.format(
+						"Press the %s key to open the Recipe Search GUI\nPress the %s key to open hotkey list\nUse the %s, %s, %s, %s keys or the middle mouse button to move around the screen\n%s or closing the program, will save current nodes",
+						this.keyBindings.get("search"),
+						this.keyBindings.get("bindings"),
+						this.keyBindings.get("up"),
+						this.keyBindings.get("left"),
+						this.keyBindings.get("down"),
+						this.keyBindings.get("right"),
+						this.keyBindings.get("save")
+				)
+		);
 		infoLabel.setText(info);
 		infoLabel.setPosition(10, Gdx.graphics.getHeight() - (infoLabel.getPrefHeight() / 2) - 5);
 
-		helpLabel.setPosition(Gdx.graphics.getWidth() * 0.5f, Gdx.graphics.getHeight() - 24, Align.center);
+		helpLabel.setPosition(Gdx.graphics.getWidth() * 0.5f, 24, Align.center);
 	}
 
 	public void resize(int width, int height){
