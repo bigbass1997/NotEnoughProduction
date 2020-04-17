@@ -67,3 +67,7 @@ assets/cache/
 assets/screenshots/
 assets/saves/
 run.bat
+
+cache/
+lib/
+saves/
