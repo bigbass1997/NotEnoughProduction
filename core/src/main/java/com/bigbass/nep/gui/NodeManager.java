@@ -46,15 +46,6 @@ public class NodeManager {
 		
 		shapeDrawer = new ShapeDrawer(stage.getBatch(), WHITE1X1);
 	}
-	
-	/**
-	 * <p>Retrieves the NodeManager singleton instance.</p>
-	 * 
-	 * <p><b>WARNING:</b> You must run NodeManager.init() before calling this, or else
-	 * this will return null!</p>
-	 * 
-	 * @return
-	 */
 
 	public void update(){
 		for(Node node : nodes){

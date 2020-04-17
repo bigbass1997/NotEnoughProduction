@@ -93,13 +93,10 @@ public class PrimaryPanel extends Panel {
 		sr.setAutoShapeType(true);
 		sr.setProjectionMatrix(cam.combined);
 
-//		NodeManager.init(worldStage);
 		nodeManager = Singleton.getInstance(NodeManager.class, worldStage);
-//		nodeManager = NodeManager.instance();
 		nodeManager.loadNodes("default");
 
-		PathManager.init(worldStage);
-		pathManager = PathManager.instance();
+		pathManager = Singleton.getInstance(PathManager.class, worldStage);
 		pathManager.loadPaths("default-paths");
 
 		searchPane = new SearchPane(hudStage, nodeManager);
