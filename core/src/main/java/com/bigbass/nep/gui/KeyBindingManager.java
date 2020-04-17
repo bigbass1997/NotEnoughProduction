@@ -6,7 +6,7 @@ import java.util.HashMap;
 import com.bigbass.nep.util.KeyBinding;
 import com.bigbass.nep.util.Singleton;
 
-public class KeyBindingManager extends Singleton {
+public class KeyBindingManager {
     private HashMap<String, KeyBinding> bindings;
 
     public KeyBindingManager() {

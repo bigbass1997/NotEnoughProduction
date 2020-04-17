@@ -4,8 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -21,15 +20,18 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.bigbass.nep.gui.Node.Tier;
+import com.bigbass.nep.recipes.IElement;
 import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.recipes.RecipeManager;
 
+import com.bigbass.nep.util.Singleton;
+import javafx.animation.KeyValue;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class NodeManager {
 	private final Stage stage;
 	
-	private final List<Node> nodes;
+	private final Map<UUID, Node> nodes;
 	private final List<Node> nodesToRemove;
 
 	private final TextureRegion WHITE1X1;
@@ -39,7 +41,7 @@ public class NodeManager {
 	public NodeManager(Stage stage){
 		this.stage = stage;
 		
-		nodes = new ArrayList<Node>();
+		nodes = new HashMap<>();
 		nodesToRemove = new ArrayList<Node>();
 		
 		WHITE1X1 = new TextureRegion(new Texture(Gdx.files.internal("textures/white1x1.png")));
@@ -48,7 +50,7 @@ public class NodeManager {
 	}
 
 	public void update(){
-		for(Node node : nodes){
+		for(Node node : nodes.values()){
 			if(node.shouldRemove()){
 				nodesToRemove.add(node);
 			}
@@ -62,7 +64,7 @@ public class NodeManager {
 	
 	public void addNode(Node node){
 		if(node != null){
-			nodes.add(node);
+			nodes.put(node.uuid, node);
 			stage.addActor(node.getActor());
 		}
 	}
@@ -70,7 +72,16 @@ public class NodeManager {
 	public void removeNode(Node node){
 		if(node != null){
 			node.getActor().remove();
-			nodes.remove(node);
+			for (List<Path> inputs : node.inputs.values()) {
+				for (Path path : inputs) {
+					Singleton.getInstance(PathManager.class).removePath(path);
+				}
+			}
+
+			for (Path input : node.outputs.values()) {
+				Singleton.getInstance(PathManager.class).removePath(input);
+			}
+			nodes.remove(node.uuid);
 		}
 	}
 	
@@ -110,21 +121,7 @@ public class NodeManager {
 		
 		final RecipeManager rm = RecipeManager.getInst();
 		for(JsonObject jsonNode : arr.getValuesAs(JsonObject.class)){
-			final float x = (float) jsonNode.getJsonNumber("x").doubleValue();
-			final float y = (float) jsonNode.getJsonNumber("y").doubleValue();
-			final int overrideNum = jsonNode.getInt("override", -1);
-			Tier override = null;
-			if(overrideNum != -1){
-				override = Tier.getTierFromNum(overrideNum);
-			}
-			final int hashCode = jsonNode.getInt("recipeHash", -1);
-			
-			IRecipe rec = null;
-			if(hashCode != -1){
-				rec = rm.findRecipe(hashCode);
-			}
-			
-			addNode(new Node(x, y, rec, override));
+			addNode(Node.fromJson(jsonNode));
 		}
 	}
 	
@@ -134,7 +131,7 @@ public class NodeManager {
 		JsonArrayBuilder builder = Json.createArrayBuilder();
 		
 		boolean errorFound = false;
-		for(Node node : nodes){
+		for(Node node : nodes.values()){
 			builder.add(node.toJson());
 			
 			if(node.getRecipe() == null){
@@ -170,9 +167,9 @@ public class NodeManager {
 		}
 	}
 	
-	public List<Node> getNodes(){
-		return nodes;
-	}
+//	public List<Node> getNodes(){
+//		return nodes;
+//	}
 	
 	/**
 	 * Searches all nodes for a node at the given position (within +/- of 0.0001f).
@@ -182,13 +179,17 @@ public class NodeManager {
 	 * @return first found node or null
 	 */
 	public Node findNodeByPosition(float x, float y){
-		for(Node node : nodes){
+		for(Node node : nodes.values()){
 			if(node.pos.epsilonEquals(x, y, 0.0001f)){
 				return node;
 			}
 		}
 		
 		return null;
+	}
+
+	public Node getNode(UUID uuid) {
+		return nodes.get(uuid);
 	}
 	
 	public void dispose(){

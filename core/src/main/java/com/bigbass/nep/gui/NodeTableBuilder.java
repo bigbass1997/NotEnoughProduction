@@ -25,6 +25,7 @@ import com.bigbass.nep.recipes.GregtechRecipe;
 import com.bigbass.nep.recipes.IElement;
 import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.skins.SkinManager;
+import com.bigbass.nep.util.Singleton;
 
 public class NodeTableBuilder {
 	
@@ -244,19 +245,25 @@ public class NodeTableBuilder {
 				nested.add(name);
 				nested.add(qty).fillY();
 				
-				nested.addListener(new ClickListener(Buttons.RIGHT){ // Initiate new path
+				nested.addListener(new ClickListener(Buttons.LEFT) {
 					@Override
 					public void clicked(InputEvent event, float x, float y){
-						
+						Singleton.getInstance(PathManager.class).createPath(
+								node.uuid,
+								el,
+								true,
+								event,
+								x,
+								y);
 					}
 				});
-				nested.addListener(new ClickListener(Buttons.LEFT){ // Open search for this element, or finish path
-					@Override
-					public void clicked(InputEvent event, float x, float y){
-						
-					}
-				});
-				
+//				nested.addListener(new ClickListener(Buttons.LEFT){\
+//					@Override
+//					public void clicked(InputEvent event, float x, float y){
+//
+//					}
+//				});
+//
 				root.add(nested);
 			}
 		}
@@ -330,7 +337,20 @@ public class NodeTableBuilder {
 				
 				nested.add(name);
 				nested.add(qty).fillY();
-				
+
+				nested.addListener(new ClickListener(Buttons.LEFT) {
+					@Override
+					public void clicked(InputEvent event, float x, float y){
+						Singleton.getInstance(PathManager.class).createPath(
+								node.uuid,
+								el,
+								false,
+								event,
+								x,
+								y);
+					}
+				});
+
 				root.add(nested);
 			}
 		}
