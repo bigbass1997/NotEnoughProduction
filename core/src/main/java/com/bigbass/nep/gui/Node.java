@@ -5,10 +5,11 @@ import java.util.*;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
-import javax.rmi.CORBA.Tie;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.bigbass.nep.gui.borders.BorderedTable;
 import com.bigbass.nep.recipes.IElement;
 import com.bigbass.nep.recipes.IRecipe;
@@ -87,6 +88,9 @@ public class Node {
 	public Map<String, List<Path>> inputs;
 	public Map<String, Path> outputs;
 
+	private Map<String, Table> inputTables;
+	private Map<String, Table> outputTables;
+
 	public Node(float x, float y){
 		this(x, y, null);
 	}
@@ -106,6 +110,8 @@ public class Node {
 		this.override = override;
 		this.inputs = new HashMap<>();
 		this.outputs = new HashMap<>();
+		this.inputTables = new HashMap<>();
+		this.outputTables = new HashMap<>();
 		this.table = new BorderedTable(SkinManager.getSkin("fonts/droid-sans-mono.ttf", 10)); // font doesn't really matter here, but skin necessary for other stuff
 		this.refreshRecipe(RecipeManager.getInst());
 	}
@@ -118,6 +124,8 @@ public class Node {
 		System.out.println("DEPRECATED Node Constructor");
 		this.inputs = new HashMap<>();
 		this.outputs = new HashMap<>();
+		this.inputTables = new HashMap<>();
+		this.outputTables = new HashMap<>();
 		this.uuid = UUID.randomUUID();
 		pos = new Vector2(x, y);
 		
@@ -212,10 +220,25 @@ public class Node {
 	}
 
 	public Vector2 getConnectionPos(String name, boolean input) {
+		float x, y;
 		if (input) {
-			return this.pos;
+			Table tbl = this.inputTables.get(name);
+			y = this.pos.y + tbl.getY() + tbl.getPrefHeight() / 2;
+			x = this.pos.x;
 		} else {
-			return new Vector2(this.pos.x + this.width, this.pos.y);
+			Table tbl = this.outputTables.get(name);
+			y = this.pos.y + tbl.getY() + tbl.getPrefHeight() / 2;
+			x = this.pos.x + this.width;
 		}
+		return new Vector2(x, y);
+	}
+
+
+	public void addInputTable(String name, Table table) {
+		this.inputTables.put(name, table);
+	}
+
+	public void addOutputTable(String name, Table table) {
+		this.outputTables.put(name, table);
 	}
 }

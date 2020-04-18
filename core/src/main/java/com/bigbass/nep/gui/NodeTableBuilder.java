@@ -260,6 +260,9 @@ public class NodeTableBuilder {
 //					}
 //				});
 //
+
+				node.addInputTable(el.getName(), nested);
+
 				root.add(nested);
 			}
 		}
@@ -347,6 +350,7 @@ public class NodeTableBuilder {
 					}
 				});
 
+				node.addOutputTable(el.getName(), nested);
 				root.add(nested);
 			}
 		}
