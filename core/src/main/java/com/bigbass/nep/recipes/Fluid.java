@@ -1,7 +1,5 @@
 package com.bigbass.nep.recipes;
 
-import java.util.UUID;
-
 public class Fluid implements IElement {
 	
 	public int amount;
