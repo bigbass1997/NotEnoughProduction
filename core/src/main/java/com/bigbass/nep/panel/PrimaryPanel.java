@@ -94,10 +94,8 @@ public class PrimaryPanel extends Panel {
 		sr.setProjectionMatrix(cam.combined);
 
 		nodeManager = Singleton.getInstance(NodeManager.class, worldStage);
-		nodeManager.loadNodes("default");
 
 		pathManager = Singleton.getInstance(PathManager.class, worldStage);
-		pathManager.loadPaths("default-paths");
 
 		searchPane = new SearchPane(hudStage, nodeManager);
 
@@ -135,6 +133,20 @@ public class PrimaryPanel extends Panel {
 		hudStage.addActor(helpLabel);
 
 		this.keyBindingPane.rebuild();
+
+		this.loadWorkspace();
+	}
+
+	private void loadWorkspace() {
+		try {
+			loaderThread.join();
+		} catch (InterruptedException e) {
+			System.out.println("Recipe loading was interrupted, aborting");
+			System.exit(1);
+		}
+
+		nodeManager.loadNodes("default");
+		pathManager.loadPaths("default-paths");
 	}
 
 	private void initializeKeyBindings() {
@@ -330,14 +342,6 @@ public class PrimaryPanel extends Panel {
 	}
 	
 	public void update(float delta) {
-		if (loaderThread.isAlive()) {
-			try {
-				loaderThread.join(10);
-			} catch (InterruptedException e) {
-				System.out.println(String.format("Got exception while loading:\n%s", e));
-			}
-		}
-
 		Input input = Gdx.input;
 
 		this.keyBindings.act();
