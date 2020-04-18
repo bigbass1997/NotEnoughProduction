@@ -52,10 +52,6 @@ public class NodeTableBuilder {
 	}
 	
 	public static void build(Node node, BorderedTable root, boolean includeControlsRow){
-		build(node, root, includeControlsRow, 240);
-	}
-	
-	public static void build(Node node, BorderedTable root, boolean includeControlsRow, float width){
 		if(MOVE_TEXTURE == null){
 			MOVE_TEXTURE = new TextureRegion(new Texture(Gdx.files.internal("textures/moveNode.png")));
 		}
@@ -69,7 +65,7 @@ public class NodeTableBuilder {
 		root.reset();
 		//root.debug();
 		
-		root.setWidth(width);
+		root.setWidth(node.width);
 		
 		// for organization and maintainability, each type of row is in its own private function
 		if(includeControlsRow){

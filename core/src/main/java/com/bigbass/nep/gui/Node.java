@@ -19,7 +19,8 @@ import com.bigbass.nep.skins.SkinManager;
  * Represents a production node, most commonly a machine or a crafting table, with a particular recipe.
  */
 public class Node {
-	
+	public final float width = 240;
+
 	public enum Tier {
 		ULV(1), LV(2), MV(3), HV(4), EV(5),
 		IV(6), LUV(7), ZPM(8), UV(9), UHV(10), UEV(11);
@@ -208,5 +209,13 @@ public class Node {
 
 	public void refreshRecipe(RecipeManager rm) {
 		this.refresh(rm.findRecipe(this.recipeHash));
+	}
+
+	public Vector2 getConnectionPos(String name, boolean input) {
+		if (input) {
+			return this.pos;
+		} else {
+			return new Vector2(this.pos.x + this.width, this.pos.y);
+		}
 	}
 }

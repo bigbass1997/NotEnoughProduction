@@ -187,7 +187,7 @@ public class SearchPane {
 					node.refresh(selectedRecipes.get(currentNodeIndex));
 				}
 				
-				NodeTableBuilder.build(node, builder.currentNodeTable, false, builder.rightColumn.getWidth());
+				NodeTableBuilder.build(node, builder.currentNodeTable, false);
 				
 				builder.dirtyNode = false;
 			}

@@ -46,7 +46,7 @@ public class Path {
 	}
 
 	public void render(ShapeDrawer drawer) {
-		drawer.line(this.begin.pos, this.end.pos, Color.BLACK, 2);
+		drawer.line(this.begin.getConnectionPos("", false), this.end.getConnectionPos("", true), Color.BLACK, 2);
 	}
 	
 	public JsonObject toJson(){
