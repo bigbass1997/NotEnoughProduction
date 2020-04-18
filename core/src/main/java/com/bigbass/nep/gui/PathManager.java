@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -19,22 +20,50 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
-import com.bigbass.nep.util.Singleton;
+import com.bigbass.nep.recipes.IElement;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class PathManager {
+	private Path builderPath;
+
 	private final ShapeDrawer drawer;
 	private final TextureRegion white1x1;
-	
+
 	private List<Path> paths;
-	
-	public PathManager(Stage stage){
-		white1x1 = new TextureRegion(new Texture(Gdx.files.internal("textures/white1x1.png")));
-		drawer = new ShapeDrawer(stage.getBatch(), white1x1);
-		
-		paths = new ArrayList<Path>();
+
+	private NodeManager nodeManager = null;
+
+	public PathManager(Stage stage, NodeManager nodeManager){
+		this.nodeManager = nodeManager;
+		this.builderPath = new Path();
+		this.white1x1 = new TextureRegion(new Texture(Gdx.files.internal("textures/white1x1.png")));
+		this.drawer = new ShapeDrawer(stage.getBatch(), this.white1x1);
+
+		this.paths = new ArrayList<Path>();
+	}
+
+	public void buildSetNode(UUID uuid, IElement element, boolean input) {
+		if (this.builderPath.getElementName() == null) {
+			this.builderPath.setElementName(element.getName());
+		} else if (!this.builderPath.getElementName().equals(element.getName())) {
+			return;
+		}
+		if (input) {
+			this.builderPath.setEnd(uuid);
+		} else {
+			Path path = this.nodeManager.getNode(uuid).outputs.get(element.getName());
+			if (path != null) {
+				this.removePath(path);
+			}
+			this.builderPath.setBegin(uuid);
+		}
+	}
+
+	public boolean buildComplete() {
+		return this.builderPath.getBegin() != null && this.builderPath.getEnd() != null;
 	}
 
 	public void render(){
@@ -60,12 +89,16 @@ public class PathManager {
 	
 	public void addPath(Path path){
 		if(path != null){
-			paths.add(path);
+			path.getBegin().outputs.put(path.getElementName(), path);
+			path.getEnd().inputs.get(path.getElementName()).add(path);
+			this.paths.add(path);
 		}
 	}
 	
 	public void removePath(Path path){
 		if(path != null){
+			path.getBegin().outputs.remove(path.getElementName());
+			path.getEnd().inputs.get(path.getElementName()).remove(path);  // TODO (rebenkoy) Hash map for this?
 			paths.remove(path);
 		}
 	}
@@ -105,29 +138,7 @@ public class PathManager {
 		}
 		
 		for(JsonObject jsonPath : arr.getValuesAs(JsonObject.class)){
-			JsonObject start = jsonPath.getJsonObject("start");
-			final float sX = (float) start.getJsonNumber("x").doubleValue();
-			final float sY = (float) start.getJsonNumber("y").doubleValue();
-			Node sNode = null;
-			if(start.containsKey("nodeX") && start.containsKey("nodeY")){
-				final float nodeX = (float) start.getJsonNumber("nodeX").doubleValue();
-				final float nodeY = (float) start.getJsonNumber("nodeY").doubleValue();
-				
-				sNode = Singleton.getInstance(NodeManager.class).findNodeByPosition(nodeX, nodeY);
-			}
-
-			JsonObject end = jsonPath.getJsonObject("end");
-			final float eX = (float) end.getJsonNumber("x").doubleValue();
-			final float eY = (float) end.getJsonNumber("y").doubleValue();
-			Node eNode = null;
-			if(end.containsKey("nodeX") && end.containsKey("nodeY")){
-				final float nodeX = (float) end.getJsonNumber("nodeX").doubleValue();
-				final float nodeY = (float) end.getJsonNumber("nodeY").doubleValue();
-				
-				sNode = Singleton.getInstance(NodeManager.class).findNodeByPosition(nodeX, nodeY);
-			}
-			
-			addPath(new Path(sX, sY, sNode, eX, eY, eNode));
+			this.addPath(Path.fromJson(jsonPath));
 		}
 	}
 	
@@ -169,5 +180,13 @@ public class PathManager {
 	
 	public void dispose(){
 		white1x1.getTexture().dispose();
+	}
+
+	public void createPath(UUID node_id, IElement element, boolean input, InputEvent event, float x, float y) {
+		this.buildSetNode(node_id, element, input);
+		if (this.buildComplete()) {
+			this.addPath(this.builderPath);
+			this.builderPath = new Path();
+		}
 	}
 }

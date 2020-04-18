@@ -25,6 +25,7 @@ import com.bigbass.nep.recipes.GregtechRecipe;
 import com.bigbass.nep.recipes.IElement;
 import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.skins.SkinManager;
+import com.bigbass.nep.util.Singleton;
 
 public class NodeTableBuilder {
 	
@@ -51,10 +52,6 @@ public class NodeTableBuilder {
 	}
 	
 	public static void build(Node node, BorderedTable root, boolean includeControlsRow){
-		build(node, root, includeControlsRow, 240);
-	}
-	
-	public static void build(Node node, BorderedTable root, boolean includeControlsRow, float width){
 		if(MOVE_TEXTURE == null){
 			MOVE_TEXTURE = new TextureRegion(new Texture(Gdx.files.internal("textures/moveNode.png")));
 		}
@@ -68,7 +65,7 @@ public class NodeTableBuilder {
 		root.reset();
 		//root.debug();
 		
-		root.setWidth(width);
+		root.setWidth(node.width);
 		
 		// for organization and maintainability, each type of row is in its own private function
 		if(includeControlsRow){
@@ -244,19 +241,28 @@ public class NodeTableBuilder {
 				nested.add(name);
 				nested.add(qty).fillY();
 				
-				nested.addListener(new ClickListener(Buttons.RIGHT){ // Initiate new path
+				nested.addListener(new ClickListener(Buttons.LEFT) {
 					@Override
 					public void clicked(InputEvent event, float x, float y){
-						
+						Singleton.getInstance(PathManager.class).createPath(
+								node.uuid,
+								el,
+								true,
+								event,
+								x,
+								y);
 					}
 				});
-				nested.addListener(new ClickListener(Buttons.LEFT){ // Open search for this element, or finish path
-					@Override
-					public void clicked(InputEvent event, float x, float y){
-						
-					}
-				});
-				
+//				nested.addListener(new ClickListener(Buttons.LEFT){\
+//					@Override
+//					public void clicked(InputEvent event, float x, float y){
+//
+//					}
+//				});
+//
+
+				node.addInputTable(el.getName(), nested);
+
 				root.add(nested);
 			}
 		}
@@ -330,7 +336,21 @@ public class NodeTableBuilder {
 				
 				nested.add(name);
 				nested.add(qty).fillY();
-				
+
+				nested.addListener(new ClickListener(Buttons.LEFT) {
+					@Override
+					public void clicked(InputEvent event, float x, float y){
+						Singleton.getInstance(PathManager.class).createPath(
+								node.uuid,
+								el,
+								false,
+								event,
+								x,
+								y);
+					}
+				});
+
+				node.addOutputTable(el.getName(), nested);
 				root.add(nested);
 			}
 		}

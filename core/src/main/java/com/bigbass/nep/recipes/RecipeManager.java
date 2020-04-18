@@ -86,7 +86,7 @@ public class RecipeManager {
 	 * <p>Calls {@link #loadRecipes(String, boolean)} by passing {@code false}.</p>
 	 *
 	 * @param version recipe version to be loaded
-	 * @param error_handler handler for loading errors
+	 * @param errorHandler handler for loading errors
 	 * @param callback function to call after load is complete
 	 * @return
 	 */
