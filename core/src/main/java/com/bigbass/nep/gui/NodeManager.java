@@ -19,13 +19,8 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.bigbass.nep.gui.Node.Tier;
-import com.bigbass.nep.recipes.IElement;
-import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.recipes.RecipeManager;
 
-import com.bigbass.nep.util.Singleton;
-import javafx.animation.KeyValue;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class NodeManager {
@@ -37,6 +32,8 @@ public class NodeManager {
 	private final TextureRegion WHITE1X1;
 	
 	public final ShapeDrawer shapeDrawer;
+
+	private PathManager pathManager = null;
 	
 	public NodeManager(Stage stage){
 		this.stage = stage;
@@ -47,6 +44,10 @@ public class NodeManager {
 		WHITE1X1 = new TextureRegion(new Texture(Gdx.files.internal("textures/white1x1.png")));
 		
 		shapeDrawer = new ShapeDrawer(stage.getBatch(), WHITE1X1);
+	}
+
+	public void setPathManager(PathManager pathManager) {
+		this.pathManager = pathManager;
 	}
 
 	public void update(){
@@ -74,12 +75,12 @@ public class NodeManager {
 			node.getActor().remove();
 			for (List<Path> inputs : node.inputs.values()) {
 				for (Path path : inputs) {
-					Singleton.getInstance(PathManager.class).removePath(path);
+					this.pathManager.removePath(path);
 				}
 			}
 
 			for (Path input : node.outputs.values()) {
-				Singleton.getInstance(PathManager.class).removePath(input);
+				this.pathManager.removePath(input);
 			}
 			nodes.remove(node.uuid);
 		}

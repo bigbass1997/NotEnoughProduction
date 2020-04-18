@@ -106,6 +106,7 @@ public class Node {
 		this.inputs = new HashMap<>();
 		this.outputs = new HashMap<>();
 		this.table = new BorderedTable(SkinManager.getSkin("fonts/droid-sans-mono.ttf", 10)); // font doesn't really matter here, but skin necessary for other stuff
+		this.refreshRecipe(RecipeManager.getInst());
 	}
 
 	public Node(float x, float y, IRecipe recipe){

@@ -24,22 +24,39 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import com.bigbass.nep.recipes.IElement;
-import com.bigbass.nep.util.Singleton;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class PathManager {
+	private Path builderPath;
+
+	private final ShapeDrawer drawer;
+	private final TextureRegion white1x1;
+
+	private List<Path> paths;
+
+	private NodeManager nodeManager = null;
+
+	public PathManager(Stage stage, NodeManager nodeManager){
+		this.nodeManager = nodeManager;
+		this.builderPath = new Path();
+		this.white1x1 = new TextureRegion(new Texture(Gdx.files.internal("textures/white1x1.png")));
+		this.drawer = new ShapeDrawer(stage.getBatch(), this.white1x1);
+
+		this.paths = new ArrayList<Path>();
+	}
+
 	public void buildSetNode(UUID uuid, IElement element, boolean input) {
-		if (this.builderPath.getElement() == null) {
-			this.builderPath.setElement(element);
-		} else if (!this.builderPath.getElement().getName().equals(element.getName())) {
+		if (this.builderPath.getElementName() == null) {
+			this.builderPath.setElementName(element.getName());
+		} else if (!this.builderPath.getElementName().equals(element.getName())) {
 			return;
 		}
 		if (input) {
 			this.builderPath.setEnd(uuid);
 		} else {
-			Path path = Singleton.getInstance(NodeManager.class).getNode(uuid).outputs.get(element.getName());
+			Path path = this.nodeManager.getNode(uuid).outputs.get(element.getName());
 			if (path != null) {
-				Singleton.getInstance(PathManager.class).removePath(path);
+				this.removePath(path);
 			}
 			this.builderPath.setBegin(uuid);
 		}
@@ -47,22 +64,6 @@ public class PathManager {
 
 	public boolean buildComplete() {
 		return this.builderPath.getBegin() != null && this.builderPath.getEnd() != null;
-	}
-
-	private Path builderPath;
-
-	private final ShapeDrawer drawer;
-	private final TextureRegion white1x1;
-
-
-	private List<Path> paths;
-	
-	public PathManager(Stage stage){
-		builderPath = new Path();
-		white1x1 = new TextureRegion(new Texture(Gdx.files.internal("textures/white1x1.png")));
-		drawer = new ShapeDrawer(stage.getBatch(), white1x1);
-		
-		paths = new ArrayList<Path>();
 	}
 
 	public void render(){
@@ -88,16 +89,16 @@ public class PathManager {
 	
 	public void addPath(Path path){
 		if(path != null){
-			path.getBegin().outputs.put(path.getElement().getName(), path);
-			path.getEnd().inputs.get(path.getElement().getName()).add(path);
+			path.getBegin().outputs.put(path.getElementName(), path);
+			path.getEnd().inputs.get(path.getElementName()).add(path);
 			this.paths.add(path);
 		}
 	}
 	
 	public void removePath(Path path){
 		if(path != null){
-			path.getBegin().outputs.remove(path.getElement().getName());
-			path.getEnd().inputs.get(path.getElement().getName()).remove(path);  // TODO (rebenkoy) Hash map for this?
+			path.getBegin().outputs.remove(path.getElementName());
+			path.getEnd().inputs.get(path.getElementName()).remove(path);  // TODO (rebenkoy) Hash map for this?
 			paths.remove(path);
 		}
 	}

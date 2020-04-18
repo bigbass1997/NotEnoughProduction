@@ -20,13 +20,13 @@ public class Path {
 	
 	private Node begin;
 	private Node end;
-	private IElement element;
+	private String element;
 
 	public Path(){
 		this(0, 0, null, 0, 0, null);
 	}
 
-	public Path(UUID begin, IElement element, UUID end) {
+	public Path(UUID begin, String element, UUID end) {
 		this.element = element;
 
 		this.begin = Singleton.getInstance(NodeManager.class).getNode(begin);
@@ -53,7 +53,7 @@ public class Path {
 		JsonObjectBuilder root = Json.createObjectBuilder();
 
 		root.add("begin", this.begin.uuid.toString());
-		root.add("element", this.element.toString());
+		root.add("element", this.element);
 		root.add("end", this.end.uuid.toString());
 
 		return root.build();
@@ -62,7 +62,7 @@ public class Path {
 	static public Path fromJson(JsonObject root) {
 		return new Path(
 				UUID.fromString(root.getString("begin")),
-				null,
+				root.getString("element"),
 				UUID.fromString(root.getString("end"))
 		);
 	}
@@ -75,19 +75,19 @@ public class Path {
 		this.end = Singleton.getInstance(NodeManager.class).getNode(uuid);
 	}
 
-	public void setElement(IElement element) {
-		this.element = element;
+	public void setElementName(String name) {
+		this.element = name;
 	}
 
 	public Node getBegin() {
-		return begin;
+		return this.begin;
 	}
 
 	public Node getEnd() {
-		return end;
+		return this.end;
 	}
 
-	public IElement getElement() {
-		return element;
+	public String getElementName() {
+		return this.element;
 	}
 }
