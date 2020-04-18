@@ -95,6 +95,11 @@ public class Node {
 	}
 
 	public Node(float x, float y, int recipeHash, Tier override) {
+		this(x, y, recipeHash, override, UUID.randomUUID());
+	}
+
+	private Node(float x, float y, int recipeHash, Tier override, UUID uuid) {
+		this.uuid = uuid;
 		this.pos = new Vector2(x, y);
 		this.recipeHash = recipeHash;
 		this.override = override;
@@ -111,7 +116,7 @@ public class Node {
 		System.out.println("DEPRECATED Node Constructor");
 		this.inputs = new HashMap<>();
 		this.outputs = new HashMap<>();
-		uuid = UUID.randomUUID();
+		this.uuid = UUID.randomUUID();
 		pos = new Vector2(x, y);
 		
 		table = new BorderedTable(SkinManager.getSkin("fonts/droid-sans-mono.ttf", 10)); // font doesn't really matter here, but skin necessary for other stuff
@@ -166,6 +171,8 @@ public class Node {
 	
 	public JsonObject toJson(){
 		JsonObjectBuilder builder = Json.createObjectBuilder();
+		builder.add("uuid", this.uuid.toString());
+
 		builder.add("x", pos.x);
 		builder.add("y", pos.y);
 		
@@ -179,6 +186,7 @@ public class Node {
 	}
 
 	public static Node fromJson(JsonObject jsonNode) {
+		final UUID uuid = UUID.fromString(jsonNode.getJsonString("uuid").getString());
 		final float x = (float) jsonNode.getJsonNumber("x").doubleValue();
 		final float y = (float) jsonNode.getJsonNumber("y").doubleValue();
 		final int overrideNum = jsonNode.getInt("override", -1);
@@ -189,7 +197,11 @@ public class Node {
 		final int recipeHash = jsonNode.getInt("recipeHash", -1);
 
 		return new Node(
-				x, y, recipeHash, override
+				x,
+				y,
+				recipeHash,
+				override,
+				uuid
 		);
 	}
 

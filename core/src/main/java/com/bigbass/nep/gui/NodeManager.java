@@ -166,27 +166,6 @@ public class NodeManager {
 			e.printStackTrace();
 		}
 	}
-	
-//	public List<Node> getNodes(){
-//		return nodes;
-//	}
-	
-	/**
-	 * Searches all nodes for a node at the given position (within +/- of 0.0001f).
-	 * 
-	 * @param x search x-position
-	 * @param y search y-position
-	 * @return first found node or null
-	 */
-	public Node findNodeByPosition(float x, float y){
-		for(Node node : nodes.values()){
-			if(node.pos.epsilonEquals(x, y, 0.0001f)){
-				return node;
-			}
-		}
-		
-		return null;
-	}
 
 	public Node getNode(UUID uuid) {
 		return nodes.get(uuid);

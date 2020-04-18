@@ -1,7 +1,5 @@
 package com.bigbass.nep.recipes;
 
-import java.util.UUID;
-
 public class Item implements IElement {
 	
 	public int amount;
