@@ -1,4 +1,4 @@
-package com.bigbass.nep.gui;
+package com.bigbass.nep.gui.nodes;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -19,6 +19,8 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.bigbass.nep.gui.Path;
+import com.bigbass.nep.gui.PathManager;
 import com.bigbass.nep.recipes.RecipeManager;
 
 import space.earlygrey.shapedrawer.ShapeDrawer;

@@ -4,7 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
-import com.bigbass.nep.gui.NodeTableBuilder;
+import com.bigbass.nep.gui.nodes.NodeTableBuilder;
 import com.bigbass.nep.panel.PanelGroup;
 import com.bigbass.nep.panel.PrimaryPanel;
 

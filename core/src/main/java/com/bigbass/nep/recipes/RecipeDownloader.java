@@ -1,11 +1,12 @@
 package com.bigbass.nep.recipes;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.logging.FileHandler;
 
+import com.bigbass.nep.util.UJSON;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
@@ -18,6 +19,8 @@ import com.twmacinta.util.MD5;
 
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+
+import javax.json.*;
 
 public class RecipeDownloader {
 	
@@ -39,6 +42,51 @@ public class RecipeDownloader {
 			ZipFile zipFile = new ZipFile(handleZip.file());
 			try {
 				zipFile.extractFile(jsonName, jsonDestination.file().getPath());
+
+				try {
+					final FileHandle jsonUncompressed = Gdx.files.local(CACHE_PATH + "/" + jsonName);
+					JsonReader reader = Json.createReader(new FileReader(jsonUncompressed.file().getPath()));
+					JsonObject root;
+
+					root = reader.readObject();
+					final String hrFolder = CACHE_PATH + version + "/sources/";
+					for (JsonValue src : root.getJsonArray("sources")) {
+						JsonObject source = src.asJsonObject();
+
+						final String type = source.getJsonString("type").getString();
+						final String typeFolder = hrFolder + type + "/";
+						final FileHandle typeFolderHandler = Gdx.files.local(typeFolder);
+						typeFolderHandler.mkdirs();
+
+						if (type.equalsIgnoreCase("gregtech")) {
+							for (JsonValue mch : source.getJsonArray("machines")) {
+								JsonObject machine = mch.asJsonObject();
+								String name = machine.getString("n").trim();
+								try {
+									FileWriter writer = new FileWriter(typeFolder + name + ".json");
+									writer.write(UJSON.prettyPrint(machine.getJsonArray("recs")));
+									writer.close();
+								} catch (IOException e) {
+									System.out.println(e.toString());
+									System.exit(1);
+								}
+							}
+						} else {
+							try {
+								FileWriter writer = new FileWriter(typeFolder + "recipes.json");
+								writer.write(UJSON.prettyPrint(source.getJsonArray("recipes")));
+								writer.close();
+							} catch (IOException e) {
+								System.out.println(e.toString());
+								System.exit(1);
+							}
+						}
+					}
+
+				} catch (FileNotFoundException e) {
+					return new DownloadResponse(Code.MALFORMED, "Unpacking files to human readable form failed.");
+				}
+
 			} catch (ZipException e) {
 				e.printStackTrace();
 				jsonDestination.delete();

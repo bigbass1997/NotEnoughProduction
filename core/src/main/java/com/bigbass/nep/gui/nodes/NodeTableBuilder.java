@@ -1,4 +1,4 @@
-package com.bigbass.nep.gui;
+package com.bigbass.nep.gui.nodes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -16,7 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
-import com.bigbass.nep.gui.Node.Tier;
+import com.bigbass.nep.gui.PathManager;
+import com.bigbass.nep.gui.nodes.Node.Tier;
 import com.bigbass.nep.gui.actors.ContainerLabel;
 import com.bigbass.nep.gui.borders.BorderedTable;
 import com.bigbass.nep.gui.listeners.HoverListener;
