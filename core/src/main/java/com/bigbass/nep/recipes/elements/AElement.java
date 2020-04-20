@@ -2,36 +2,31 @@ package com.bigbass.nep.recipes.elements;
 
 import javax.json.JsonObject;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class AElement {
-    static AElement undefinedElement = new AElement() {
-        @Override
-        public String name() {
-            return "Undefined@NEP++";
-        }
-
-        @Override
-        public String type() {
-            return "Undefined@NEP++";
-        }
-    };
-
-    static Map<String, Class<Object>> registry = new HashMap<>();
+    static Map<String, Class<?>> registry = new HashMap<>();
+    public static Map<String, AElement> mendeley = new HashMap<>();
 
     public abstract String name();
+    public abstract String HRName();
+
     public abstract String type();
+    public abstract String eid();
+
+    public abstract JsonObject toJson();
 
     private static String getTypeFromJSON(JsonObject object) {
         return "item";
     }
 
     public static AElement fromJson(JsonObject object) {
-        Class<Object> cls = AElement.registry.get(AElement.getTypeFromJSON(object));
+        Class<?> cls = AElement.registry.get(AElement.getTypeFromJSON(object));
         if (cls == null) {
             System.out.println(String.format("404: Meme not found (can not determine type of Element: \n%s\n)", object));
-            return AElement.undefinedElement;
+            return AElement.mendeley.get(UndefinedElement.placeholder);
         }
         Class[] types = new Class[1];
         types[0] = JsonObject.class;
@@ -42,10 +37,13 @@ public abstract class AElement {
             System.out.println(String.format("Element init error: %s %s ", cls.getName(), e));
             System.exit(1);
         }
-        return obj;
+        if (!mendeley.containsKey(obj.eid())) {
+            mendeley.put(obj.eid(), obj);
+        }
+        return mendeley.get(obj.eid());
     }
 
-    public static void registerElementType(String name, Class<Object> type) {
+    public static void registerElementType(String name, Class<?> type) {
         AElement.registry.put(name, type);
     }
 }

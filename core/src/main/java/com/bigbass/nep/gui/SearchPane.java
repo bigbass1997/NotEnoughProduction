@@ -17,6 +17,7 @@ import com.bigbass.nep.gui.nodes.NodeTableBuilder;
 import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.recipes.IRecipe.IO;
 import com.bigbass.nep.recipes.RecipeManager;
+import com.bigbass.nep.recipes.processing.Recipe;
 
 public class SearchPane {
 	
@@ -28,7 +29,7 @@ public class SearchPane {
 	private Table table;
 	private float tableWidth;
 	
-	private Hashtable<String, List<IRecipe>> filteredRecipes;
+	private Hashtable<String, List<Recipe>> filteredRecipes;
 	private int currentNodeIndex;
 	
 	public SearchPane(Stage stage, NodeManager nodeManager){
@@ -40,7 +41,7 @@ public class SearchPane {
 		
 		tableWidth = 600;
 		
-		filteredRecipes = new Hashtable<String, List<IRecipe>>();
+		filteredRecipes = new Hashtable<>();
 		
 		
 		builder = new SearchTableBuilder(this.stage, table, tableWidth);
@@ -55,7 +56,7 @@ public class SearchPane {
 		if(builder.dirtyFilters){
 			final RecipeManager rm = RecipeManager.getInst();
 			
-			final Hashtable<String, List<IRecipe>> allRecipes = rm.recipes;
+			final Hashtable<String, List<Recipe>> allRecipes = rm.recipes;
 			filteredRecipes.clear();
 			filteredRecipes.putAll(allRecipes);
 			
@@ -76,7 +77,7 @@ public class SearchPane {
 			if(builder.searchProcessType != null && !builder.searchProcessType.field.getText().isEmpty()){
 				final String type = builder.searchProcessType.field.getText();
 				
-				final Hashtable<String, List<IRecipe>> tmp = new Hashtable<String, List<IRecipe>>();
+				final Hashtable<String, List<Recipe>> tmp = new Hashtable<>();
 				for(String key : filteredRecipes.keySet()){
 					if(key.contains(type) && filteredRecipes.containsKey(key)){
 						tmp.put(key, filteredRecipes.get(key));
@@ -87,7 +88,7 @@ public class SearchPane {
 			}
 			
 			// Determine IO filter for next step
-			IO io = IO.BOTH; // remains BOTH if both the checkboxes have the same value
+			Recipe.IO io = new Recipe.IO(); // remains BOTH if both the checkboxes have the same value
 			ContainerCheckBox input = null;
 			ContainerCheckBox output = null;
 			for(Actor boxContainer : builder.ioCheckboxes.getChildren().items){
@@ -101,11 +102,14 @@ public class SearchPane {
 					}
 				}
 			}
-			if(input != null && input != null){
-				if(input.box.isChecked() && !output.box.isChecked()){
-					io = IO.INPUT;
-				} else if(!input.box.isChecked() && output.box.isChecked()){
-					io = IO.OUTPUT;
+			if(input != null) {
+				if(input.box.isChecked()){
+					io.input = true;
+				}
+			}
+			if(output != null) {
+				if(output.box.isChecked()){
+					io.output = true;
 				}
 			}
 			
@@ -113,12 +117,12 @@ public class SearchPane {
 			if(builder.searchName != null && !builder.searchName.field.getText().isEmpty()){
 				final String name = builder.searchName.field.getText();
 				
-				final Hashtable<String, List<IRecipe>> tmp = new Hashtable<String, List<IRecipe>>();
+				final Hashtable<String, List<Recipe>> tmp = new Hashtable<>();
 				for(String key : filteredRecipes.keySet()){
-					for(IRecipe recipe : filteredRecipes.get(key)){
+					for(Recipe recipe : filteredRecipes.get(key)){
 						if(recipe.containsElement(name, io)){
 							if(!tmp.containsKey(key)){
-								tmp.put(key, new ArrayList<IRecipe>());
+								tmp.put(key, new ArrayList<>());
 							}
 							tmp.get(key).add(recipe);
 						}
@@ -146,7 +150,7 @@ public class SearchPane {
 		}
 
 		if(builder.addNode){
-			List<IRecipe> selectedRecipes = filteredRecipes.get(builder.categories.getSelected());
+			List<Recipe> selectedRecipes = filteredRecipes.get(builder.categories.getSelected());
 			
 			Node node = null;
 			if(selectedRecipes.size() > 0){
@@ -169,7 +173,7 @@ public class SearchPane {
 		
 		if(builder.dirtyNode){
 			if(filteredRecipes != null && builder.categories.getSelected() != null){
-				List<IRecipe> selectedRecipes = filteredRecipes.get(builder.categories.getSelected());
+				List<Recipe> selectedRecipes = filteredRecipes.get(builder.categories.getSelected());
 				if(builder.nodeIndexChange == -100){
 					currentNodeIndex = 0;
 				} else {

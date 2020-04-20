@@ -25,6 +25,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import com.bigbass.nep.gui.nodes.NodeManager;
 import com.bigbass.nep.recipes.IElement;
+import com.bigbass.nep.recipes.elements.AElement;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class PathManager {
@@ -46,16 +47,16 @@ public class PathManager {
 		this.paths = new ArrayList<Path>();
 	}
 
-	public void buildSetNode(UUID uuid, IElement element, boolean input) {
+	public void buildSetNode(UUID uuid, AElement element, boolean input) {
 		if (this.builderPath.getElementName() == null) {
-			this.builderPath.setElementName(element.getName());
-		} else if (!this.builderPath.getElementName().equals(element.getName())) {
+			this.builderPath.setElementName(element.name());
+		} else if (!this.builderPath.getElementName().equals(element.name())) {
 			return;
 		}
 		if (input) {
 			this.builderPath.setEnd(uuid);
 		} else {
-			Path path = this.nodeManager.getNode(uuid).outputs.get(element.getName());
+			Path path = this.nodeManager.getNode(uuid).outputs.get(element.name());
 			if (path != null) {
 				this.removePath(path);
 			}
@@ -183,7 +184,7 @@ public class PathManager {
 		white1x1.getTexture().dispose();
 	}
 
-	public void createPath(UUID node_id, IElement element, boolean input, InputEvent event, float x, float y) {
+	public void createPath(UUID node_id, AElement element, boolean input, InputEvent event, float x, float y) {
 		this.buildSetNode(node_id, element, input);
 		if (this.buildComplete()) {
 			this.addPath(this.builderPath);

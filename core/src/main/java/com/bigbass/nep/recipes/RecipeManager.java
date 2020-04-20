@@ -15,6 +15,8 @@ import javax.json.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.bigbass.nep.recipes.RecipeDownloader.DownloadResponse;
+import com.bigbass.nep.recipes.elements.AElement;
+import com.bigbass.nep.recipes.processing.Recipe;
 
 public class RecipeManager {
 	
@@ -27,7 +29,7 @@ public class RecipeManager {
 	 * name of the crafting/process in which the recipe goes. So for a Gregtech recipe in the Compressor,
 	 * the key would be "Compressor", and all compressor recipes (in a list) would be the key's value.</p>
 	 */
-	public Hashtable<String, List<IRecipe>> recipes;
+	public Hashtable<String, List<Recipe>> recipes;
 	
 	/**
 	 * Contains a list of sources as defined by the JSON data. Each source's value is a list that contains
@@ -36,7 +38,7 @@ public class RecipeManager {
 	public Hashtable<String, List<String>> recipeSources;
 	
 	private RecipeManager(){
-		recipes = new Hashtable<String, List<IRecipe>>();
+		recipes = new Hashtable<String, List<Recipe>>();
 		recipeSources = new Hashtable<String, List<String>>();
 	}
 	
@@ -58,7 +60,7 @@ public class RecipeManager {
 		try {
 			return loadRecipes(version, false);
 		} catch (Exception e) {
-			System.out.println(String.format("Got \n%s\n", e));
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -143,6 +145,10 @@ public class RecipeManager {
 				return new RecipeError("versionNotFound", "The version provided was not found locally.");
 			}
 		}
+		JsonReader mendeleyReader = Json.createReader(new FileReader(handle.file().getPath() + "/mendeley.json"));
+		for (JsonValue rawElem : mendeleyReader.readArray()) {
+			AElement.fromJson(rawElem.asJsonObject());
+		}
 
 		final File sources = new File(handle.file().getPath() + "/sources/");
 
@@ -155,48 +161,14 @@ public class RecipeManager {
 				ArrayList<String> machineNames = new ArrayList<>();
 
 				for(File machine : gregTechFolder.listFiles()) {
-					final List<IRecipe> machineRecipes = new ArrayList<>();
+					final List<Recipe> machineRecipes = new ArrayList<>();
 					final String machineName = machine.getName().replace(".json", "");
 					JsonReader reader = Json.createReader(new FileReader(machine.getPath()));
 
 					for(JsonValue jr : reader.readArray()){
 						JsonObject jsonRecipe = jr.asJsonObject();
 						if(!jsonRecipe.isEmpty()){
-							final GregtechRecipe recipe = new GregtechRecipe();
-							recipe.machineName = machineName;
-							recipe.enabled = jsonRecipe.getBoolean("en", false);
-							recipe.duration = jsonRecipe.getInt("dur", 0);
-							recipe.eut = jsonRecipe.getInt("eut", 0);
-
-							// item inputs
-							for(JsonObject jsonItem : jsonRecipe.getJsonArray("iI").getValuesAs(JsonObject.class)){
-								final Item item = parseItem(jsonItem);
-								if(item != null){
-									recipe.itemInputs.add(item);
-								}
-							}
-							// item outputs
-							for(JsonObject jsonItem : jsonRecipe.getJsonArray("iO").getValuesAs(JsonObject.class)){
-								final Item item = parseItem(jsonItem);
-								if(item != null){
-									recipe.itemOutputs.add(item);
-								}
-							}
-							// fluid inputs
-							for(JsonObject jsonFluid : jsonRecipe.getJsonArray("fI").getValuesAs(JsonObject.class)){
-								final Fluid fluid = parseFluid(jsonFluid);
-								if(fluid != null){
-									recipe.fluidInputs.add(fluid);
-								}
-							}
-							// fluid outputs
-							for(JsonObject jsonFluid : jsonRecipe.getJsonArray("fO").getValuesAs(JsonObject.class)){
-								final Fluid fluid = parseFluid(jsonFluid);
-								if(fluid != null){
-									recipe.fluidOutputs.add(fluid);
-								}
-							}
-
+							Recipe recipe = Recipe.fromJson(jsonRecipe);
 							machineRecipes.add(recipe);
 						}
 					}
@@ -208,68 +180,22 @@ public class RecipeManager {
 				}
 				recipeSources.put(sourceType, machineNames);
 
-			} else if(sourceType.equalsIgnoreCase("shapeless")) {
+			} else if (!sourceType.equals("shapedOreDict")) {
 				final List<String> craftingType = new ArrayList<>(1);
-				craftingType.add("Shapeless Crafting");
+				craftingType.add(sourceType);
 				recipeSources.put(sourceType, craftingType);
 
 				JsonReader reader = Json.createReader(new FileReader(source.getPath() + "/recipes.json"));
 
-				final List<IRecipe> shapelessRecipes = new ArrayList<>();
-				for(JsonValue jr : reader.readArray()){
+				final List<Recipe> shapedRecipes = new ArrayList<>();
+				for(JsonValue jr : reader.readArray()) {
 					JsonObject jsonRecipe = jr.asJsonObject();
-					if(!jsonRecipe.isEmpty()){
-						final ShapelessRecipe recipe = new ShapelessRecipe();
-
-						for(JsonObject jsonItem : jsonRecipe.getJsonArray("iI").getValuesAs(JsonObject.class)){
-							final Item item = parseItem(jsonItem);
-							if(item != null){
-								recipe.itemInputs.add(item);
-							}
-						}
-
-						final Item output = parseItem(jsonRecipe.getJsonObject("o"));
-						if(output != null){
-							recipe.itemOutput = output;
-						}
-
-						shapelessRecipes.add(recipe);
-					}
-				}
-
-				recipes.put("Shapeless Crafting", shapelessRecipes);
-			} else if(sourceType.equalsIgnoreCase("shaped")) {
-				final List<String> craftingType = new ArrayList<>(1);
-				craftingType.add("Shaped Crafting");
-				recipeSources.put(sourceType, craftingType);
-
-				JsonReader reader = Json.createReader(new FileReader(source.getPath() + "/recipes.json"));
-
-				final List<IRecipe> shapedRecipes = new ArrayList<>();
-				for(JsonValue jr : reader.readArray()){
-					JsonObject jsonRecipe = jr.asJsonObject();
-					if(!jsonRecipe.isEmpty()){
-						final ShapedRecipe recipe = new ShapedRecipe();
-
-						for(JsonValue jsonItem : jsonRecipe.getJsonArray("iI").getValuesAs(JsonValue.class)){
-							if(jsonItem != JsonValue.NULL && jsonItem instanceof JsonObject){
-								final Item item = parseItem((JsonObject) jsonItem);
-								if(item != null){
-									recipe.itemInputs.add(item);
-								}
-							}
-						}
-
-						final Item output = parseItem(jsonRecipe.getJsonObject("o"));
-						if(output != null){
-							recipe.itemOutput = output;
-						}
-
+					if(!jsonRecipe.isEmpty()) {
+						Recipe recipe = Recipe.fromJson(jsonRecipe);
 						shapedRecipes.add(recipe);
 					}
 				}
-
-				recipes.put("Shaped Crafting", shapedRecipes);
+				recipes.put(sourceType, shapedRecipes);
 			} //TODO oredicted recipes
 		}
 		return null; // intended; returning null means no errors occured
@@ -328,14 +254,14 @@ public class RecipeManager {
 	 * @param hashCode of the recipe
 	 * @return the found recipe, or null
 	 */
-	public IRecipe findRecipe(int hashCode){
+	public Recipe findRecipe(int hashCode){
 		if(hashCode == -1){
 			return null;
 		}
 		
 		if(recipes != null){
 			for(String key : recipes.keySet()){
-				for(IRecipe rec : recipes.get(key)){
+				for(Recipe rec : recipes.get(key)){
 					if(rec.hashCode() == hashCode){
 						return rec;
 					}

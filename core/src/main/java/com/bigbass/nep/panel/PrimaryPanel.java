@@ -21,6 +21,10 @@ import com.bigbass.nep.gui.PathManager;
 import com.bigbass.nep.gui.SearchPane;
 import com.bigbass.nep.gui.KeyBindingPane;
 import com.bigbass.nep.gui.KeyBindingManager;
+import com.bigbass.nep.recipes.elements.AElement;
+import com.bigbass.nep.recipes.elements.UndefinedElement;
+import com.bigbass.nep.recipes.elements.usual.Fluid;
+import com.bigbass.nep.recipes.elements.usual.Item;
 import com.bigbass.nep.util.KeyBinding;
 import com.bigbass.nep.recipes.RecipeManager;
 import com.bigbass.nep.recipes.RecipeManager.RecipeError;
@@ -59,6 +63,10 @@ public class PrimaryPanel extends Panel {
 
 	public PrimaryPanel() {
 		super();
+
+		AElement.registerElementType(UndefinedElement.type, UndefinedElement.class);
+		AElement.registerElementType(Item.type, Item.class);
+		AElement.registerElementType(Fluid.type, Fluid.class);
 
 		System.out.println("Loading recipes...");
 		RecipeManager.getInst().loadRecipes(
