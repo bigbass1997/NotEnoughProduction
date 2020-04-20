@@ -7,7 +7,8 @@ import javax.json.JsonObjectBuilder;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 
-import com.bigbass.nep.recipes.IElement;
+import com.bigbass.nep.gui.nodes.Node;
+import com.bigbass.nep.gui.nodes.NodeManager;
 import com.bigbass.nep.util.Singleton;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 

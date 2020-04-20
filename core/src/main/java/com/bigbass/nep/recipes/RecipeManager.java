@@ -1,19 +1,16 @@
 package com.bigbass.nep.recipes;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonException;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonValue;
+import javax.json.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -58,7 +55,12 @@ public class RecipeManager {
 	 * @return
 	 */
 	public RecipeError loadRecipes(String version){
-		return loadRecipes(version, false);
+		try {
+			return loadRecipes(version, false);
+		} catch (Exception e) {
+			System.out.println(String.format("Got \n%s\n", e));
+		}
+		return null;
 	}
 
 	/**
@@ -121,67 +123,51 @@ public class RecipeManager {
 	 * @param localOnly true if this version is only found locally
 	 * @return
 	 */
-	public RecipeError loadRecipes(String version, boolean localOnly){
+	public RecipeError loadRecipes(String version, boolean localOnly) throws FileNotFoundException {
 		version = version.trim().replace(".json", "");
-		
+
 		if(version == null || version.isEmpty()){
 			return new RecipeError("emptyVersion", "The version provided was either null or empty.");
 		}
-		
-		if(!localOnly){
-			final RecipeDownloader rd = new RecipeDownloader();
-			final DownloadResponse res = rd.downloadRecipeFile(version);
-			if(res != DownloadResponse.OK){
-				return new RecipeError("versionNotFound", "Either the version provided does not exist remotely, or the download and/or checksum failed. " + res);
-			}
-		}
-		
-		final FileHandle handle = Gdx.files.local("cache/" + version + ".json");
-		
+
+		final FileHandle handle = Gdx.files.local("cache/" + version);
+
 		if(!handle.exists()){
-			if(localOnly){
-				return new RecipeError("versionNotFound", "The version provided was not found locally.");
+			if(!localOnly){
+				final RecipeDownloader rd = new RecipeDownloader();
+				final DownloadResponse res = rd.downloadRecipeFile(version);
+				if(res != DownloadResponse.OK){
+					return new RecipeError("versionNotFound", "Either the version provided does not exist remotely, or the download and/or checksum failed. " + res);
+				}
 			} else {
-				return new RecipeError("versionNotFound", "The version provided was not found locally nor remotely.");
+				return new RecipeError("versionNotFound", "The version provided was not found locally.");
 			}
 		}
-		
-		// Recipe Parsing \\
-		
-		JsonObject root;
-		
-		try {
-			JsonReader reader = Json.createReader(new FileReader(handle.file()));
-			
-			root = reader.readObject();
-			
-			reader.close();
-		} catch (FileNotFoundException e) {
-			return new RecipeError("fileNotFound", "After attempting to download the version, the file still cannot be found.");
-		} catch (JsonException | IllegalStateException e){
-			return new RecipeError("parsing", "Error occured during parsing: " + e.getMessage());
-		}
-		
-		for(JsonObject source : root.getJsonArray("sources").getValuesAs(JsonObject.class)){
-			final String sourceType = source.getString("type", "unknown");
-			
-			
-			if(sourceType.equalsIgnoreCase("gregtech")){ //*************** GREGTECH ***************\\
-				JsonArray machines = source.getJsonArray("machines");
-				ArrayList<String> machineNames = new ArrayList<String>();
-				
-				for(JsonObject machine : machines.getValuesAs(JsonObject.class)){
-					final List<IRecipe> machineRecipes = new ArrayList<IRecipe>();
-					final String machineName = machine.getString("n", "unknown");
-					
-					for(JsonObject jsonRecipe : machine.getJsonArray("recs").getValuesAs(JsonObject.class)){
+
+		final File sources = new File(handle.file().getPath() + "/sources/");
+
+		for (File source : sources.listFiles()) {
+			String sourceType = source.getName();
+
+			if(sourceType.equalsIgnoreCase("gregtech")) {
+				final File gregTechFolder = new File(source.getPath() + "/");
+
+				ArrayList<String> machineNames = new ArrayList<>();
+
+				for(File machine : gregTechFolder.listFiles()) {
+					final List<IRecipe> machineRecipes = new ArrayList<>();
+					final String machineName = machine.getName().replace(".json", "");
+					JsonReader reader = Json.createReader(new FileReader(machine.getPath()));
+
+					for(JsonValue jr : reader.readArray()){
+						JsonObject jsonRecipe = jr.asJsonObject();
 						if(!jsonRecipe.isEmpty()){
 							final GregtechRecipe recipe = new GregtechRecipe();
 							recipe.machineName = machineName;
 							recipe.enabled = jsonRecipe.getBoolean("en", false);
 							recipe.duration = jsonRecipe.getInt("dur", 0);
 							recipe.eut = jsonRecipe.getInt("eut", 0);
-							
+
 							// item inputs
 							for(JsonObject jsonItem : jsonRecipe.getJsonArray("iI").getValuesAs(JsonObject.class)){
 								final Item item = parseItem(jsonItem);
@@ -210,55 +196,61 @@ public class RecipeManager {
 									recipe.fluidOutputs.add(fluid);
 								}
 							}
-							
+
 							machineRecipes.add(recipe);
 						}
 					}
-					
+
 					if(!machineRecipes.isEmpty()){
 						recipes.put(machineName, machineRecipes);
 						machineNames.add(machineName);
 					}
 				}
 				recipeSources.put(sourceType, machineNames);
-				
-			} else if(sourceType.equalsIgnoreCase("shapeless")){ //*************** SHAPELESS ***************\\
-				final List<String> craftingType = new ArrayList<String>(1);
+
+			} else if(sourceType.equalsIgnoreCase("shapeless")) {
+				final List<String> craftingType = new ArrayList<>(1);
 				craftingType.add("Shapeless Crafting");
 				recipeSources.put(sourceType, craftingType);
-				
-				final List<IRecipe> shapelessRecipes = new ArrayList<IRecipe>();
-				for(JsonObject jsonRecipe : source.getJsonArray("recipes").getValuesAs(JsonObject.class)){
+
+				JsonReader reader = Json.createReader(new FileReader(source.getPath() + "/recipes.json"));
+
+				final List<IRecipe> shapelessRecipes = new ArrayList<>();
+				for(JsonValue jr : reader.readArray()){
+					JsonObject jsonRecipe = jr.asJsonObject();
 					if(!jsonRecipe.isEmpty()){
 						final ShapelessRecipe recipe = new ShapelessRecipe();
-						
+
 						for(JsonObject jsonItem : jsonRecipe.getJsonArray("iI").getValuesAs(JsonObject.class)){
 							final Item item = parseItem(jsonItem);
 							if(item != null){
 								recipe.itemInputs.add(item);
 							}
 						}
-						
+
 						final Item output = parseItem(jsonRecipe.getJsonObject("o"));
 						if(output != null){
 							recipe.itemOutput = output;
 						}
-						
+
 						shapelessRecipes.add(recipe);
 					}
 				}
-				
+
 				recipes.put("Shapeless Crafting", shapelessRecipes);
-			} else if(sourceType.equalsIgnoreCase("shaped")){ //*************** SHAPED ***************\\
-				final List<String> craftingType = new ArrayList<String>(1);
+			} else if(sourceType.equalsIgnoreCase("shaped")) {
+				final List<String> craftingType = new ArrayList<>(1);
 				craftingType.add("Shaped Crafting");
 				recipeSources.put(sourceType, craftingType);
-				
-				final List<IRecipe> shapedRecipes = new ArrayList<IRecipe>();
-				for(JsonObject jsonRecipe : source.getJsonArray("recipes").getValuesAs(JsonObject.class)){
+
+				JsonReader reader = Json.createReader(new FileReader(source.getPath() + "/recipes.json"));
+
+				final List<IRecipe> shapedRecipes = new ArrayList<>();
+				for(JsonValue jr : reader.readArray()){
+					JsonObject jsonRecipe = jr.asJsonObject();
 					if(!jsonRecipe.isEmpty()){
 						final ShapedRecipe recipe = new ShapedRecipe();
-						
+
 						for(JsonValue jsonItem : jsonRecipe.getJsonArray("iI").getValuesAs(JsonValue.class)){
 							if(jsonItem != JsonValue.NULL && jsonItem instanceof JsonObject){
 								final Item item = parseItem((JsonObject) jsonItem);
@@ -267,20 +259,19 @@ public class RecipeManager {
 								}
 							}
 						}
-						
+
 						final Item output = parseItem(jsonRecipe.getJsonObject("o"));
 						if(output != null){
 							recipe.itemOutput = output;
 						}
-						
+
 						shapedRecipes.add(recipe);
 					}
 				}
-				
+
 				recipes.put("Shaped Crafting", shapedRecipes);
 			} //TODO oredicted recipes
 		}
-		
 		return null; // intended; returning null means no errors occured
 	}
 	

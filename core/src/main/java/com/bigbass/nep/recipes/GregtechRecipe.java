@@ -3,7 +3,7 @@ package com.bigbass.nep.recipes;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bigbass.nep.gui.Node.Tier;
+import com.bigbass.nep.gui.nodes.Node.Tier;
 
 public class GregtechRecipe implements IRecipe {
 	

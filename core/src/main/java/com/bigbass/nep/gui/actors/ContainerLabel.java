@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.bigbass.nep.gui.ColorCache;
-import com.bigbass.nep.gui.NodeManager;
+import com.bigbass.nep.gui.nodes.NodeManager;
 import com.bigbass.nep.gui.borders.BorderSide;
 import com.bigbass.nep.gui.borders.BorderUtil;
 import com.bigbass.nep.gui.borders.BorderedActor;

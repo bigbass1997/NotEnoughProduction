@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
+import com.bigbass.nep.gui.nodes.NodeManager;
 import com.bigbass.nep.recipes.IElement;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 

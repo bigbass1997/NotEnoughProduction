@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.bigbass.nep.Globals;
 import com.bigbass.nep.Main;
 import com.bigbass.nep.gui.listeners.ScrollwheelInputAdapter;
-import com.bigbass.nep.gui.NodeManager;
+import com.bigbass.nep.gui.nodes.NodeManager;
 import com.bigbass.nep.gui.PathManager;
 import com.bigbass.nep.gui.SearchPane;
 import com.bigbass.nep.gui.KeyBindingPane;
@@ -61,16 +61,8 @@ public class PrimaryPanel extends Panel {
 		super();
 
 		System.out.println("Loading recipes...");
-		loaderThread = RecipeManager.getInst().loadRecipesAsync(
-				"v2.0.8.4-x0.0.3",
-				(RecipeError err) -> {
-					System.out.println("Done " + err);
-					return null;
-				},
-				() -> {
-					this.loadCompete = true;
-					return null;
-				}
+		RecipeManager.getInst().loadRecipes(
+				"v2.0.8.4-x0.0.3"
 		);
 
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -138,13 +130,6 @@ public class PrimaryPanel extends Panel {
 	}
 
 	private void loadWorkspace() {
-		try {
-			loaderThread.join();
-		} catch (InterruptedException e) {
-			System.out.println("Recipe loading was interrupted, aborting");
-			System.exit(1);
-		}
-
 		nodeManager.loadNodes("default");
 		pathManager.loadPaths("default-paths");
 	}

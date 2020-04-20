@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.bigbass.nep.gui.NodeManager;
+import com.bigbass.nep.gui.nodes.NodeManager;
 import com.bigbass.nep.util.Singleton;
 
 public class BorderedTable extends Table implements BorderedActor {
