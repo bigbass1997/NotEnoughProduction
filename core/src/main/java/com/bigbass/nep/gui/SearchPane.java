@@ -47,7 +47,7 @@ public class SearchPane {
 		builder = new SearchTableBuilder(this.stage, table, tableWidth);
 		builder.build();
 		
-		refreshRecipes();
+//		refreshRecipes();
 		
 		this.stage.addActor(table);
 	}
@@ -190,7 +190,7 @@ public class SearchPane {
 				builder.nodeViewText.label.setText("Node Preview (" + (currentNodeIndex + 1) + "/" + selectedRecipes.size() + ")");
 				
 				Node node = new Node(0, 0);
-				if(selectedRecipes.size() > 0){
+				if(selectedRecipes.size() > 0) {
 					node.refresh(selectedRecipes.get(currentNodeIndex));
 				}
 				

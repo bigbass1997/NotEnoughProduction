@@ -45,8 +45,8 @@ public class Fluid extends AElement {
     }
 
     public Fluid(JsonObject json) {
-        this.name = json.getString("uN");
-        this.hrName = json.getString("lN");
+        this.name = json.getString("n");
+        this.hrName = json.getString("h");
     }
 
     public Fluid(String name, String hrName) {

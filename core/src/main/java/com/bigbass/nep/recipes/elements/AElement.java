@@ -19,7 +19,7 @@ public abstract class AElement {
     public abstract JsonObject toJson();
 
     private static String getTypeFromJSON(JsonObject object) {
-        return "item";
+        return object.getString("t");
     }
 
     public static AElement fromJson(JsonObject object) {
