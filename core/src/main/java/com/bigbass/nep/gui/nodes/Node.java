@@ -14,6 +14,9 @@ import com.bigbass.nep.gui.borders.BorderedTable;
 import com.bigbass.nep.recipes.IElement;
 import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.recipes.RecipeManager;
+import com.bigbass.nep.recipes.elements.AElement;
+import com.bigbass.nep.recipes.elements.Pile;
+import com.bigbass.nep.recipes.processing.Recipe;
 import com.bigbass.nep.skins.SkinManager;
 
 /**
@@ -74,7 +77,7 @@ public class Node {
 	}
 	
 	private BorderedTable table;
-	private IRecipe recipe;
+	private Recipe recipe;
 	protected Tier override;
 	
 	public Vector2 pos;
@@ -116,11 +119,11 @@ public class Node {
 		this.refreshRecipe(RecipeManager.getInst());
 	}
 
-	public Node(float x, float y, IRecipe recipe){
+	public Node(float x, float y, Recipe recipe){
 		this(x, y, recipe, null);
 	}
 
-	public Node(float x, float y, IRecipe recipe, Tier override){
+	public Node(float x, float y, Recipe recipe, Tier override){
 		System.out.println("DEPRECATED Node Constructor");
 		this.inputs = new HashMap<>();
 		this.outputs = new HashMap<>();
@@ -148,10 +151,10 @@ public class Node {
 		table.setPosition(pos.x, pos.y);
 	}
 	
-	public void refresh(IRecipe recipe){
+	public void refresh(Recipe recipe){
 		this.recipe = recipe;
-		for (IElement el : recipe.getInput()) {
-			this.inputs.put(el.getName(), new LinkedList<>());
+		for (Pile pile : recipe.inputs) {
+			this.inputs.put(pile.element.name(), new LinkedList<>());
 		}
 		refresh();
 	}
@@ -160,7 +163,7 @@ public class Node {
 		return table;
 	}
 	
-	public IRecipe getRecipe(){
+	public Recipe getRecipe(){
 		return recipe;
 	}
 

@@ -4,8 +4,15 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.FileHandler;
 
+import com.bigbass.nep.recipes.elements.AElement;
+import com.bigbass.nep.recipes.elements.Pile;
+import com.bigbass.nep.recipes.elements.usual.Fluid;
+import com.bigbass.nep.recipes.elements.usual.Item;
+import com.bigbass.nep.recipes.processing.Recipe;
 import com.bigbass.nep.util.UJSON;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -49,7 +56,8 @@ public class RecipeDownloader {
 					JsonObject root;
 
 					root = reader.readObject();
-					final String hrFolder = CACHE_PATH + version + "/sources/";
+					final String versionFolder = CACHE_PATH + version + "/";
+					final String hrFolder = versionFolder + "sources/";
 					for (JsonValue src : root.getJsonArray("sources")) {
 						JsonObject source = src.asJsonObject();
 
@@ -62,25 +70,122 @@ public class RecipeDownloader {
 							for (JsonValue mch : source.getJsonArray("machines")) {
 								JsonObject machine = mch.asJsonObject();
 								String name = machine.getString("n").trim();
+								JsonArrayBuilder list = Json.createArrayBuilder();
 								try {
+									for (JsonValue rv : machine.getJsonArray("recs")) {
+										JsonObject json = rv.asJsonObject();
+										Recipe recipe = new Recipe();
+										recipe.duration = json.getInt("dur");
+										Map<String, Pile> inputs = new HashMap<>();
+										try {
+											if (json.containsKey("iI")) {
+												for (JsonValue i : json.getJsonArray("iI")) {
+													populateRecipeIO(inputs, i, true);
+												}
+											}
+											if (json.containsKey("fI")) {
+												for (JsonValue i : json.getJsonArray("fI")) {
+													populateRecipeIO(inputs, i, false);
+												}
+											}
+											recipe.inputs.addAll(inputs.values());
+
+											Map<String, Pile> outputs = new HashMap<>();
+											if (json.containsKey("iO")) {
+												for (JsonValue i : json.getJsonArray("iO")) {
+													populateRecipeIO(outputs, i, true);
+												}
+											}
+											if (json.containsKey("fO")) {
+												for (JsonValue i : json.getJsonArray("fO")) {
+													populateRecipeIO(outputs, i, false);
+												}
+											}
+											recipe.outputs.addAll(outputs.values());
+										} catch (Exception e) {
+											System.out.println("error reading recipe:");
+											System.out.println(name);
+											System.out.println(json);
+										}
+
+										list.add(recipe.toJson());
+									}
+
 									FileWriter writer = new FileWriter(typeFolder + name + ".json");
-									writer.write(UJSON.prettyPrint(machine.getJsonArray("recs")));
+									writer.write(UJSON.prettyPrint(list.build()));
 									writer.close();
 								} catch (IOException e) {
 									System.out.println(e.toString());
 									System.exit(1);
 								}
 							}
-						} else {
+						} else if (!type.equals("shapedOreDict")) {
+							JsonArrayBuilder list = Json.createArrayBuilder();
 							try {
+								for (JsonValue rv : source.getJsonArray("recipes")) {
+									JsonObject json = rv.asJsonObject();
+									Recipe recipe = new Recipe();
+									recipe.duration = 0;
+									Map<String, Pile> inputs = new HashMap<>();
+									try {
+										if (json.containsKey("iI")) {
+											for (JsonValue i : json.getJsonArray("iI")) {
+												populateRecipeIO(inputs, i, true);
+											}
+										}
+										if (json.containsKey("fI")) {
+											for (JsonValue i : json.getJsonArray("fI")) {
+												populateRecipeIO(inputs, i, false);
+											}
+										}
+										recipe.inputs.addAll(inputs.values());
+
+										Map<String, Pile> outputs = new HashMap<>();
+										if (json.containsKey("iO")) {
+											for (JsonValue i : json.getJsonArray("iO")) {
+												populateRecipeIO(outputs, i, true);
+											}
+										}
+										if (json.containsKey("o")) {
+											populateRecipeIO(outputs, json.getJsonObject("o"), true);
+										}
+										if (json.containsKey("fO")) {
+											for (JsonValue i : json.getJsonArray("fO")) {
+												populateRecipeIO(outputs, i, false);
+											}
+										}
+										recipe.outputs.addAll(outputs.values());
+									} catch (Exception e) {
+										System.out.println("error reading recipe:");
+										System.out.println(e);
+										System.out.println(type);
+										System.out.println(json);
+									}
+
+									list.add(recipe.toJson());
+								}
+
 								FileWriter writer = new FileWriter(typeFolder + "recipes.json");
-								writer.write(UJSON.prettyPrint(source.getJsonArray("recipes")));
+								writer.write(UJSON.prettyPrint(list.build()));
 								writer.close();
 							} catch (IOException e) {
 								System.out.println(e.toString());
 								System.exit(1);
 							}
 						}
+					}
+
+					JsonArrayBuilder mendeteyBuilder = Json.createArrayBuilder();
+					for (AElement element : AElement.mendeley.values()) {
+						mendeteyBuilder.add(element.toJson());
+					}
+					try {
+						FileWriter writer = new FileWriter(versionFolder + "mendeley.json");
+						writer.write(UJSON.prettyPrint(mendeteyBuilder.build()));
+						writer.close();
+					} catch (IOException e) {
+						System.out.println("error writing items list");
+						e.printStackTrace();
 					}
 
 				} catch (FileNotFoundException e) {
@@ -93,12 +198,41 @@ public class RecipeDownloader {
 				return new DownloadResponse(Code.MALFORMED, "Extracting json from zip has failed.");
 			}
 		}
-		
+
 		// if zip download and decompression worked, this call will not download the json file, but will verify checksum
 		DownloadResponse jsonRes = downloadFilePair(jsonName);
 		return jsonRes;
 	}
-	
+
+	private void populateRecipeIO(Map<String, Pile> collection, JsonValue i, boolean isItem) {
+		if (i == JsonValue.NULL) {
+			return;
+		}
+		JsonObject json = i.asJsonObject();
+		AElement element;
+		if (isItem) {
+			Map<String, String> nbt = new HashMap<>();
+			if (json.containsKey("cfg")) {
+				nbt.put("cfg", Integer.toString(json.getInt("cfg")));
+			}
+			element = new Item(json.getString("uN"), json.getString("lN"), nbt);
+		} else {
+			element = new Fluid(json.getString("uN"), json.getString("lN"));
+		}
+		if (AElement.mendeley.containsKey(element.eid())) {
+			element = AElement.mendeley.get(element.eid());
+		} else {
+			AElement.mendeley.put(element.eid(), element);
+		}
+		if (!collection.containsKey(element.eid())) {
+			collection.put(element.eid(), new Pile(json.getInt("a"), element));
+		} else {
+			collection.get(element.eid()).amount += json.getInt("a");
+		}
+
+		
+	}
+
 	/**
 	 * <p>Downloads the given filename with matching md5 file, and verifies checksum. Written specifically
 	 * for this application, thus assumes some information such as directory and remote paths, and the

@@ -17,14 +17,15 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.bigbass.nep.gui.PathManager;
-import com.bigbass.nep.gui.nodes.Node.Tier;
 import com.bigbass.nep.gui.actors.ContainerLabel;
 import com.bigbass.nep.gui.borders.BorderedTable;
 import com.bigbass.nep.gui.listeners.HoverListener;
-import com.bigbass.nep.recipes.Fluid;
+import com.bigbass.nep.recipes.elements.usual.Fluid;
 import com.bigbass.nep.recipes.GregtechRecipe;
 import com.bigbass.nep.recipes.IElement;
 import com.bigbass.nep.recipes.IRecipe;
+import com.bigbass.nep.recipes.elements.Pile;
+import com.bigbass.nep.recipes.processing.Recipe;
 import com.bigbass.nep.skins.SkinManager;
 import com.bigbass.nep.util.Singleton;
 
@@ -72,7 +73,6 @@ public class NodeTableBuilder {
 		if(includeControlsRow){
 			nodeMenuRow(root, node);
 		}
-		extraDataRow(root, node);
 		titleRow(root, node);
 		inputHeaderRow(root, node);
 		inputRows(root, node);
@@ -105,29 +105,6 @@ public class NodeTableBuilder {
 		root.add(nested);
 	}
 	
-	private static void extraDataRow(Table root, Node node){
-		if(node.override != null && node.getRecipe() != null && node.getRecipe() instanceof GregtechRecipe){
-			root.row();
-			final Skin rootSkin = root.getSkin();
-			Table nested = new Table(rootSkin);
-			
-			GregtechRecipe gtrec = (GregtechRecipe) node.getRecipe();
-			Tier recTier = gtrec.getTier();
-			
-			ContainerLabel overclock = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-			overclock.label.setText("Overclock: " + recTier.name() + " >> " + node.override.name());
-			overclock.label.setAlignment(Align.center);
-			overclock.setBackgroundColor(COLOR_OVERCLOCK);
-			overclock.setForegroundColor(COLOR_OVERCLOCK);
-			overclock.minWidth(root.getWidth());
-			
-			
-			nested.add(overclock);
-			
-			root.add(nested);
-		}
-	}
-	
 	private static void titleRow(BorderedTable root, Node node){
 		root.row();
 		final Skin rootSkin = root.getSkin();
@@ -135,30 +112,17 @@ public class NodeTableBuilder {
 		
 		final Color col = new Color(0xB4C2E7FF);
 		
-		IRecipe rec = node.getRecipe();
+		Recipe rec = node.getRecipe();
 		
 		// title
 		ContainerLabel title = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
 		title.label.setText("Crafting Table");
-		if(rec instanceof GregtechRecipe){
-			title.label.setText( ((GregtechRecipe) rec).machineName );
-		}
 		title.setBackgroundColor(col); // temporary colors
 		title.setForegroundColor(col);
 		title.minWidth(root.getWidth() * 0.7f);
 		
 		// rate
 		ContainerLabel rate = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-		if(rec instanceof GregtechRecipe){
-			GregtechRecipe gtrec = (GregtechRecipe) rec;
-			final Tier recTier = Tier.getTierFromEUt(gtrec.eut);
-			
-			if(node.override != null && recTier.compare(node.override) == -1){
-				rate.label.setText(gtrec.getOverclockedEUt(node.override) + " EU/t");
-			} else {
-				rate.label.setText(gtrec.eut + " EU/t");
-			}
-		}
 		rate.setBackgroundColor(col); // temporary colors
 		rate.setForegroundColor(col);
 		rate.minWidth(root.getWidth() * 0.3f);
@@ -176,7 +140,7 @@ public class NodeTableBuilder {
 		final Skin rootSkin = root.getSkin();
 		Table nested = new Table(rootSkin);
 
-		IRecipe rec = node.getRecipe();
+		Recipe rec = node.getRecipe();
 		
 		// output
 		ContainerLabel input = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
@@ -187,19 +151,10 @@ public class NodeTableBuilder {
 		
 		// cost
 		ContainerLabel cost = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-		if(rec instanceof GregtechRecipe){
-			GregtechRecipe gtrec = (GregtechRecipe) rec;
-			if(node.override != null){
-				cost.label.setText(gtrec.getTotalEU(node.override) + " EU");
-			} else {
-				cost.label.setText(gtrec.getTotalEU() + " EU");
-			}
-			cost.setBackgroundColor(COLOR_COST);
-			cost.setForegroundColor(COLOR_COST);
-		} else {
-			cost.setBackgroundColor(COLOR_OUTPUT_HEADER);
-			cost.setForegroundColor(COLOR_OUTPUT_HEADER);
-		}
+
+		cost.setBackgroundColor(COLOR_OUTPUT_HEADER);
+		cost.setForegroundColor(COLOR_OUTPUT_HEADER);
+
 		cost.minWidth(root.getWidth() * 0.4f);
 		cost.label.setAlignment(Align.center);
 		
@@ -213,24 +168,24 @@ public class NodeTableBuilder {
 	private static void inputRows(Table root, Node node){
 		final Skin rootSkin = root.getSkin();
 
-		IRecipe rec = node.getRecipe();
+		Recipe rec = node.getRecipe();
 		
 		if(rec != null){
-			for(IElement el : rec.getInput()){
+			for(Pile pile : rec.inputs){
 				root.row();
 				HoverableTable nested = new HoverableTable(rootSkin);
 				
 				// name
 				ContainerLabel name = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-				name.label.setText(el.getLocalizedName());
+				name.label.setText(pile.element.HRName());
 				name.setBackgroundColor(COLOR_INPUTS_BAR);
 				name.setForegroundColor(COLOR_INPUTS_BAR);
 				name.minWidth(root.getWidth() * 0.8f);
 				
 				// qty
 				ContainerLabel qty = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-				String qtyText = String.valueOf(el.getAmount());
-				if(el instanceof Fluid){
+				String qtyText = String.valueOf(pile.amount);
+				if(pile.element instanceof Fluid){
 					qtyText += "L";
 				}
 				qty.label.setText(qtyText);
@@ -247,7 +202,7 @@ public class NodeTableBuilder {
 					public void clicked(InputEvent event, float x, float y){
 						Singleton.getInstance(PathManager.class).createPath(
 								node.uuid,
-								el,
+								pile.element,
 								true,
 								event,
 								x,
@@ -262,7 +217,7 @@ public class NodeTableBuilder {
 //				});
 //
 
-				node.addInputTable(el.getName(), nested);
+				node.addInputTable(pile.element.name(), nested);
 
 				root.add(nested);
 			}
@@ -274,7 +229,7 @@ public class NodeTableBuilder {
 		final Skin rootSkin = root.getSkin();
 		Table nested = new Table(rootSkin);
 
-		IRecipe rec = node.getRecipe();
+		Recipe rec = node.getRecipe();
 		
 		// output
 		ContainerLabel output = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
@@ -286,14 +241,6 @@ public class NodeTableBuilder {
 
 		// ticks
 		ContainerLabel ticks = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-		if(rec instanceof GregtechRecipe){
-			GregtechRecipe gtrec = (GregtechRecipe) rec;
-			if(node.override != null){
-				ticks.label.setText(gtrec.getOverclockedDuration(node.override) + " ticks");
-			} else {
-				ticks.label.setText(gtrec.duration + " ticks");
-			}
-		}
 		ticks.setBackgroundColor(COLOR_INPUT_HEADER);
 		ticks.setForegroundColor(COLOR_INPUT_HEADER);
 		ticks.minWidth(root.getWidth() * 0.4f);
@@ -309,24 +256,24 @@ public class NodeTableBuilder {
 	private static void outputRows(Table root, Node node){
 		final Skin rootSkin = root.getSkin();
 
-		IRecipe rec = node.getRecipe();
+		Recipe rec = node.getRecipe();
 		
 		if(rec != null){
-			for(IElement el : rec.getOutput()){
+			for(Pile pile : rec.outputs){
 				root.row();
 				HoverableTable nested = new HoverableTable(rootSkin);
 				
 				// name
 				ContainerLabel name = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-				name.label.setText(el.getLocalizedName());
+				name.label.setText(pile.element.HRName());
 				name.setBackgroundColor(COLOR_OUTPUTS_BAR);
 				name.setForegroundColor(COLOR_OUTPUTS_BAR);
 				name.minWidth(root.getWidth() * 0.8f);
 				
 				// qty
 				ContainerLabel qty = new ContainerLabel(SkinManager.getSkin(FONTPATH, 10));
-				String qtyText = String.valueOf(el.getAmount());
-				if(el instanceof Fluid){
+				String qtyText = String.valueOf(pile.amount);
+				if(pile.element instanceof Fluid){
 					qtyText += "L";
 				}
 				qty.label.setText(qtyText);
@@ -343,7 +290,7 @@ public class NodeTableBuilder {
 					public void clicked(InputEvent event, float x, float y){
 						Singleton.getInstance(PathManager.class).createPath(
 								node.uuid,
-								el,
+								pile.element,
 								false,
 								event,
 								x,
@@ -351,7 +298,7 @@ public class NodeTableBuilder {
 					}
 				});
 
-				node.addOutputTable(el.getName(), nested);
+				node.addOutputTable(pile.element.name(), nested);
 				root.add(nested);
 			}
 		}
