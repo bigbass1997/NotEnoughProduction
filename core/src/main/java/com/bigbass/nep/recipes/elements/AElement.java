@@ -1,14 +1,21 @@
 package com.bigbass.nep.recipes.elements;
 
+import com.bigbass.nep.recipes.processing.Recipe;
+
 import javax.json.JsonObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class AElement {
     static Map<String, Class<?>> registry = new HashMap<>();
     public static Map<String, AElement> mendeley = new HashMap<>();
+
+    public Set<Recipe> asInput = new HashSet<>();
+    public Set<Recipe> asOutput = new HashSet<>();
 
     public abstract String name();
     public abstract String HRName();

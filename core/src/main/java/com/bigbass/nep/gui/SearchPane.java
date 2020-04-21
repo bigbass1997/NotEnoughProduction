@@ -17,6 +17,7 @@ import com.bigbass.nep.gui.nodes.NodeTableBuilder;
 import com.bigbass.nep.recipes.IRecipe;
 import com.bigbass.nep.recipes.IRecipe.IO;
 import com.bigbass.nep.recipes.RecipeManager;
+import com.bigbass.nep.recipes.elements.AElement;
 import com.bigbass.nep.recipes.processing.Recipe;
 
 public class SearchPane {
@@ -112,23 +113,43 @@ public class SearchPane {
 					io.output = true;
 				}
 			}
-			
+
 			// Filter based on element search name
+			final Hashtable<String, List<Recipe>> tmp = new Hashtable<>();
 			if(builder.searchName != null && !builder.searchName.field.getText().isEmpty()){
 				final String name = builder.searchName.field.getText();
-				
-				final Hashtable<String, List<Recipe>> tmp = new Hashtable<>();
-				for(String key : filteredRecipes.keySet()){
-					for(Recipe recipe : filteredRecipes.get(key)){
-						if(recipe.containsElement(name, io)){
-							if(!tmp.containsKey(key)){
-								tmp.put(key, new ArrayList<>());
+				for (AElement element : AElement.mendeley.values()) {
+					if (element.name().contains(name)) {
+						if (io.input) {
+							for (Recipe rec : element.asInput) {
+								if (!tmp.containsKey(rec.group)) {
+									tmp.put(rec.group, new ArrayList<>());
+								}
+								tmp.get(rec.group).add(rec);
 							}
-							tmp.get(key).add(recipe);
+						}
+						if (io.output) {
+							for (Recipe rec : element.asOutput) {
+								if (!tmp.containsKey(rec.group)) {
+									tmp.put(rec.group, new ArrayList<>());
+								}
+								tmp.get(rec.group).add(rec);
+							}
 						}
 					}
 				}
 				
+//				for(String key : filteredRecipes.keySet()){
+//					for(Recipe recipe : filteredRecipes.get(key)){
+//						if(recipe.containsElement(name, io)){
+//							if(!tmp.containsKey(key)){
+//								tmp.put(key, new ArrayList<>());
+//							}
+//							tmp.get(key).add(recipe);
+//						}
+//					}
+//				}
+//
 				filteredRecipes = tmp;
 			}
 			

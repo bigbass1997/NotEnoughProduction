@@ -15,15 +15,22 @@ public class Recipe {
     public List<Pile> outputs = new ArrayList<>();
     public Integer duration;
 
-    public static Recipe fromJson(JsonObject json) {
+    public String group;
+
+    public static Recipe fromJson(JsonObject json, String group) {
         Recipe instance = new Recipe();
         for (JsonValue val : json.getJsonArray("i")) {
-            instance.inputs.add(Pile.fromJson(val.asJsonObject()));
+            Pile pile = Pile.fromJson(val.asJsonObject());
+            instance.inputs.add(pile);
+            pile.element.asInput.add(instance);
         }
         for (JsonValue val : json.getJsonArray("o")) {
-            instance.outputs.add(Pile.fromJson(val.asJsonObject()));
+            Pile pile = Pile.fromJson(val.asJsonObject());
+            instance.outputs.add(pile);
+            pile.element.asOutput.add(instance);
         }
         instance.duration = json.getInt("d", 0);
+        instance.group = group;
         return instance;
     }
 
@@ -42,9 +49,5 @@ public class Recipe {
         builder.add("o", outputs.build());
         builder.add("d", this.duration);
         return builder.build();
-    }
-
-    public boolean containsElement(String name, IO config) {
-        return true;  // TODO (rebenkoy);
     }
 }

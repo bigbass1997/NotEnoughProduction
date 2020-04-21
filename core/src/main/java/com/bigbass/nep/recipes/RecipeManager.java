@@ -168,7 +168,7 @@ public class RecipeManager {
 					for(JsonValue jr : reader.readArray()){
 						JsonObject jsonRecipe = jr.asJsonObject();
 						if(!jsonRecipe.isEmpty()){
-							Recipe recipe = Recipe.fromJson(jsonRecipe);
+							Recipe recipe = Recipe.fromJson(jsonRecipe, machineName);
 							machineRecipes.add(recipe);
 						}
 					}
@@ -191,7 +191,7 @@ public class RecipeManager {
 				for(JsonValue jr : reader.readArray()) {
 					JsonObject jsonRecipe = jr.asJsonObject();
 					if(!jsonRecipe.isEmpty()) {
-						Recipe recipe = Recipe.fromJson(jsonRecipe);
+						Recipe recipe = Recipe.fromJson(jsonRecipe, sourceType);
 						shapedRecipes.add(recipe);
 					}
 				}
