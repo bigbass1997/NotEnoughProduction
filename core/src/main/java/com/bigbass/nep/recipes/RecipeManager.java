@@ -134,11 +134,11 @@ public class RecipeManager {
 
 		final FileHandle handle = Gdx.files.local("cache/" + version);
 
-		if(!handle.exists()){
-			if(!localOnly){
+		if(!handle.exists()) {
+			if(!localOnly) {
 				final RecipeDownloader rd = new RecipeDownloader();
 				final DownloadResponse res = rd.downloadRecipeFile(version);
-				if(res != DownloadResponse.OK){
+				if(res != DownloadResponse.OK) {
 					return new RecipeError("versionNotFound", "Either the version provided does not exist remotely, or the download and/or checksum failed. " + res);
 				}
 			} else {
@@ -199,51 +199,6 @@ public class RecipeManager {
 			} //TODO oredicted recipes
 		}
 		return null; // intended; returning null means no errors occured
-	}
-	
-	public Item parseItem(JsonObject json){
-		if(json == null || json.isEmpty()){
-			return null;
-		}
-		
-		Item item = null;
-		
-		if(json.containsKey("cfg")){
-			item = new ItemProgrammedCircuit();
-			((ItemProgrammedCircuit) item).configNum = json.getInt("cfg");
-		} else {
-			item = new Item();
-		}
-		
-		item.amount = json.getInt("a", 0);
-		item.unlocalizedName = json.getString("uN", "");
-		item.localizedName = json.getString("lN", "");
-		
-		if((item.unlocalizedName == null || item.unlocalizedName.isEmpty()) && (item.localizedName == null || item.localizedName.isEmpty())){
-			// if item is not identifiable, return null
-			return null;
-		}
-		
-		return item;
-	}
-	
-	public Fluid parseFluid(JsonObject json){
-		if(json == null || json.isEmpty()){
-			return null;
-		}
-		
-		Fluid fluid = new Fluid();
-		
-		fluid.amount = json.getInt("a", 0);
-		fluid.unlocalizedName = json.getString("uN", "");
-		fluid.localizedName = json.getString("lN", "");
-		
-		if((fluid.unlocalizedName == null || fluid.unlocalizedName.isEmpty()) && (fluid.localizedName == null || fluid.localizedName.isEmpty())){
-			// if item is not identifiable, return null
-			return null;
-		}
-		
-		return fluid;
 	}
 	
 	/**

@@ -24,7 +24,6 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import com.bigbass.nep.gui.nodes.NodeManager;
-import com.bigbass.nep.recipes.IElement;
 import com.bigbass.nep.recipes.elements.AElement;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 

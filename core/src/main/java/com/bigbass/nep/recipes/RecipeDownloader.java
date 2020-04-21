@@ -6,7 +6,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.FileHandler;
 
 import com.bigbass.nep.recipes.elements.AElement;
 import com.bigbass.nep.recipes.elements.Pile;

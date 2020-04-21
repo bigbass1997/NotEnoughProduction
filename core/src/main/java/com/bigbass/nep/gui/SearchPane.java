@@ -14,8 +14,6 @@ import com.bigbass.nep.gui.SearchTableBuilder.ContainerCheckBox;
 import com.bigbass.nep.gui.nodes.Node;
 import com.bigbass.nep.gui.nodes.NodeManager;
 import com.bigbass.nep.gui.nodes.NodeTableBuilder;
-import com.bigbass.nep.recipes.IRecipe;
-import com.bigbass.nep.recipes.IRecipe.IO;
 import com.bigbass.nep.recipes.RecipeManager;
 import com.bigbass.nep.recipes.elements.AElement;
 import com.bigbass.nep.recipes.processing.Recipe;
