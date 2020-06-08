@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.bigbass.nep.Globals;
 import com.bigbass.nep.Main;
+import com.bigbass.nep.config.ConfigManager;
 import com.bigbass.nep.gui.listeners.ScrollwheelInputAdapter;
 import com.bigbass.nep.gui.NodeManager;
 import com.bigbass.nep.gui.PathManager;
@@ -51,7 +52,10 @@ public class PrimaryPanel extends Panel {
 		super();
 
 		System.out.println("Loading recipes...");
-		RecipeError err = RecipeManager.getInst().loadRecipes("v2.0.8.4-x0.0.3");
+		
+		final String version = ConfigManager.getInstance().getConfig("general").data.getString("atlas_version", "v2.0.9.0QF2-x0.0.3");
+		
+		RecipeError err = RecipeManager.getInst().loadRecipes(version);
 		System.out.println("Done " + err);
 		
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
