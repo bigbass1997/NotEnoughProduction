@@ -1,4 +1,4 @@
-[![License: CC BY-NC-SA 4.0](https://licensebuttons.net/l/by-nc-sa/4.0/80x15.png)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ### Description
 NotEnoughProduction is an ongoing project to provide a versatile tool primarily to modded minecraft players. The tool will be capable of viewing recipes without running Minecraft. But more importantly, it will be able to display as many recipes simultaneously as needed while providing features to assist in building complex production chains.
 
@@ -28,9 +28,7 @@ If you need to add a new dependency (e.g. library, framework, etc), open `core/b
 There are also built in commands for generating the needed project files for IDEA and Eclipse: `gradlew idea` and `gradlew eclipse` respectively. Your IDE may also have the ability to import Gradle projects, so check that first.
 
 ### License
-This project/program is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International, except where other licenses are included.
-
-A full copy of the project license can be viewed in "LICENSE.txt", and a summary plus additional links are provided in "LICENSE.md".
+This project/program/sourcecode is licensed under the GNU General Public License v3, except where other licenses are included.
 
 ### Contributions
 Thank you to all those who will contribute or have contributed to this project already! Special thanks to Sampsa, as the recipe GUI formatting/styles were greatly inspired by their [Excel flowcharts](https://gtnh.miraheze.org/wiki/Sampsa's_Excellent_Flowcharts).
