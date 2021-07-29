@@ -1,6 +1,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+### <div align="center">This program is no longer maintained</div>
 ### Description
-NotEnoughProduction is an ongoing project to provide a versatile tool primarily to modded minecraft players. The tool will be capable of viewing recipes without running Minecraft. But more importantly, it will be able to display as many recipes simultaneously as needed while providing features to assist in building complex production chains.
+NotEnoughProduction is an ~~ongoing~~ project to provide a versatile tool primarily to modded minecraft players. The tool will be capable of viewing recipes without running Minecraft. But more importantly, it will be able to display as many recipes simultaneously as needed while providing features to assist in building complex production chains.
 
 In short, NEP is a combination of NEI, Excel, and flowcharts, wrapped up into a single independent tool.
 
@@ -33,6 +34,6 @@ This project/program/sourcecode is licensed under the GNU General Public License
 ### Contributions
 Thank you to all those who will contribute or have contributed to this project already! Special thanks to Sampsa, as the recipe GUI formatting/styles were greatly inspired by their [Excel flowcharts](https://gtnh.miraheze.org/wiki/Sampsa's_Excellent_Flowcharts).
 
-If you are interested in contributing, feel free to submit issues or pull requests as you see fit. While I am open to pull requests, please understand that the project is under heavy development at this time. So PR's may be rejected due to a rapidly changing backend, or because it may conflict with future plans for the program's source.
+~~If you are interested in contributing, feel free to submit issues or pull requests as you see fit. While I am open to pull requests, please understand that the project is under heavy development at this time. So PR's may be rejected due to a rapidly changing backend, or because it may conflict with future plans for the program's source.~~
 
-Code reviews or performance improvement pull requests may also be kept open until the core program features are in place.
+~~Code reviews or performance improvement pull requests may also be kept open until the core program features are in place.~~
